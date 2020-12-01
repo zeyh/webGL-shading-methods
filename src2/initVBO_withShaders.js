@@ -88,7 +88,7 @@ VBO_Cube.prototype.init = function(){
         );
         return;
     }else{
-        console.log('You called: '+ this.constructor.name + '.init() fcn!');
+        // console.log('You called: '+ this.constructor.name + '.init() fcn!');
     }
 
     // ! switching gl program to this one
@@ -163,10 +163,8 @@ VBO_Cube.prototype.adjust = function () { //any matrix transformations🍀
     var g_modelMatrix = new Matrix4(); 
     var g_viewProjMatrix = new Matrix4(); //should be the same for every vbo
 
-    // pushMatrix(g_modelMatrix);
-    // g_modelMatrix.scale(0.5,2,0.5)
-    // g_modelMatrix.rotate(currentAngle, 0,1,0)
-    // g_modelMatrix = popMatrix();
+    g_modelMatrix.scale(0.5,0.2,0.5)
+    g_modelMatrix.rotate(currentAngle, 0,1,0)
 
     this.MvpMat.set(g_viewProjMatrix);
     this.MvpMat.multiply(g_modelMatrix);

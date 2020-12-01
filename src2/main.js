@@ -29,12 +29,29 @@ function main() {
     // gl.enable(gl.BLEND);// Enable alpha blending
     // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Set blending function conflict with shadow...?
 
+
+    var tick = function () {
+        g_canvasID.width = window.innerWidth * 1; //resize canvas
+        g_canvasID.height = window.innerHeight * 7 / 10;
+        currentAngle = animate(currentAngle);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    // Clear color and depth buffer
+        gl.viewport(0, 0, g_canvasID.width, g_canvasID.height);
+        
+
+        drawAll();
+        window.requestAnimationFrame(tick, g_canvasID);
+
+
+    }
+    tick();
+
+}
+
+function drawAll(){
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    // Clear color and depth buffer
     var cube = new VBO_Cube();
     cube.init();
     cube.switchToMe();
     cube.adjust();
     cube.draw();
-
-
-
 }
