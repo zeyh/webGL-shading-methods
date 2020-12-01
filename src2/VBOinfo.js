@@ -33,7 +33,7 @@ var cube_indices = new Uint8Array([
    20,21,22,  20,22,23     // back
 ]);
 
-var [sphere_vertices, sphere_colors,sphere_indices] = generate_sphereVBOinfo(10, 0.9);
+var [sphere_vertices, sphere_colors,sphere_indices] = generate_sphereVBOinfo(12, 0.9);
 var sphere_normals = sphere_vertices;
 function generate_sphereVBOinfo(sphere_div, colorFactor){
     var SPHERE_DIV = sphere_div;

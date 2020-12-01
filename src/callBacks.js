@@ -120,6 +120,27 @@ function resizeCanvas(gl, arr, u_ProjMatrix, projMatrix, u_ViewMatrix, viewMatri
     drawAll(gl, arr, u_ProjMatrix, projMatrix, u_ViewMatrix, viewMatrix, u_ModelMatrix, modelMatrix);
 }
 
+var hideGrid = false;
+function gridDisplay(){
+    if(hideGrid){
+        //start
+        hideGrid = false;
+
+    }else{
+        hideGrid = true;
+    }
+}
+var hideSphere = false;
+function sphereDisplay(){
+    if(hideSphere){
+        //start
+        hideSphere = false;
+
+    }else{
+        hideSphere = true;
+    }
+}
+
 var isStop = false;
 function stopMotion1(){
     if(isStop){
