@@ -1,33 +1,8 @@
 "use strict"
-function VBO_genetic(vertices, colors, normals, indices) {
+function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices) {
     // ! diffuse shading
-    this.VERT_SRC =
-        "precision highp float;\n" +    
-
-        'attribute vec4 a_Position0;\n' +
-        'attribute vec3 a_Color0;\n' +
-        'attribute vec3 a_Normal0;\n' +
-
-        'varying vec4 v_Color0;\n' +
-        'uniform mat4 u_MvpMatrix0;\n' +
-        'uniform mat4 u_NormalMatrix0;\n' +
-
-        'void main() {\n' +
-        '  vec4 transVec0 = u_NormalMatrix0 * vec4(a_Normal0, 0.0);\n' +
-        '  vec3 normVec0 = normalize(transVec0.xyz);\n' +
-        '  vec3 lightVec0 = vec3(0.1, 0.5, 0.7);\n' +	
-        '  gl_Position = u_MvpMatrix0 * a_Position0;\n' +
-        '  v_Color0 = vec4(0.7*a_Color0 + 0.3*dot(normVec0,lightVec0), 1.0);\n' +
-        '}\n';
-
-    this.FRAG_SRC =
-        '#ifdef GL_ES\n' +
-        'precision highp float;\n' +
-        '#endif\n' +
-        'varying vec4 v_Color0;\n' +
-        'void main() {\n' +
-        '  gl_FragColor = v_Color0;\n' +
-        '}\n';
+    this.VERT_SRC = vertSrc;
+    this.FRAG_SRC = fragSrc;
 
     // ! VBO contents
     this.vertices =  new Float32Array(vertices); //just to make sure...
@@ -39,6 +14,9 @@ function VBO_genetic(vertices, colors, normals, indices) {
     this.colorBuffer;
     this.indexBuffer;
     this.numIndices = this.indices.length;
+    if(this.indices.length <= 0){
+        this.numIndices = this.vertices.length/3; //assume floats per vertex = 3
+    }
     // ! Attributes
     this.shaderLoc; 
     this.a_PosLoc;
@@ -70,8 +48,16 @@ VBO_genetic.prototype.init = function(){
     this.vertexBuffer = initArrayBufferForLaterUse(gl, this.vertices, 3, gl.FLOAT);
     this.colorBuffer = initArrayBufferForLaterUse(gl, this.colors, 3, gl.FLOAT);
     this.normalBuffer = initArrayBufferForLaterUse(gl, this.normals, 3, gl.FLOAT);
-    this.indexBuffer = initElementArrayBufferForLaterUse(gl, this.indices, gl.UNSIGNED_BYTE);
-    if (!this.vertexBuffer || !this.colorBuffer || !this.normalBuffer || !this.indexBuffer) {
+    if(this.indices.length > 0){
+        this.indexBuffer = initElementArrayBufferForLaterUse(gl, this.indices, gl.UNSIGNED_BYTE);
+        if (!this.indexBuffer) {
+            console.log(
+                this.constructor.name + ".init() for [indices] failed to create VBO in GPU. Bye!"
+            );
+            return;
+        }
+    }
+    if (!this.vertexBuffer || !this.colorBuffer || !this.normalBuffer) {
         console.log(
             this.constructor.name + ".init() failed to create VBO in GPU. Bye!"
         );
@@ -102,10 +88,12 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
     if (this.normalBuffer != undefined) {
         initAttributeVariable(gl, this.a_NormLoc, this.normalBuffer);
     }
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    if(this.indexBuffer != undefined) {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    }
 }
 
-VBO_genetic.prototype.isReady = function (){ //sanity check
+VBO_genetic.prototype.isReady = function (){ //very brief sanity check
     var isOK = true;
     if (gl.getParameter(gl.CURRENT_PROGRAM) != this.shaderLoc) {
         console.log(
@@ -114,7 +102,7 @@ VBO_genetic.prototype.isReady = function (){ //sanity check
         );
         isOK = false;
     }
-    if(gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING) != this.indexBuffer){
+    if(this.indices.length > 0 &&  gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING) != this.indexBuffer){
         console.log(
             this.constructor.name +
                 ".isReady() false: vbo at this.indexBuffer not in use!"
@@ -124,30 +112,8 @@ VBO_genetic.prototype.isReady = function (){ //sanity check
     return isOK;
 }
 
-VBO_genetic.prototype.adjust = function () { //any matrix transformations🍀
-    if (this.isReady() == false) {
-        console.log(
-            "ERROR! before" +
-                this.constructor.name +
-                ".adjust() call you needed to call this.switchToMe()!!"
-        );
-    }
-    var g_modelMatrix = new Matrix4(); 
-    var g_viewProjMatrix = new Matrix4(); //should be the same for every vbo
 
-    g_modelMatrix.scale(0.5,0.5,0.5)
-    g_modelMatrix.rotate(currentAngle, 0,1,0)
-
-    this.MvpMat.set(g_viewProjMatrix);
-    this.MvpMat.multiply(g_modelMatrix);
-    gl.uniformMatrix4fv(this.u_MvpMatLoc,  false,  this.MvpMat.elements ); 
-
-    this.NormMat.setInverseOf(g_modelMatrix);
-	this.NormMat.transpose();
-    gl.uniformMatrix4fv(this.u_NormMatLoc, false, this.NormMat.elements);
-};
-
-VBO_genetic.prototype.draw = function () { //finally drawing🙏
+VBO_genetic.prototype.draw = function (g_modelMatrix, g_viewProjMatrix) { //finally drawing🙏
     if (this.isReady() == false) {
         console.log(
             "ERROR! before" +
@@ -155,11 +121,18 @@ VBO_genetic.prototype.draw = function () { //finally drawing🙏
                 ".draw() call you needed to call this.switchToMe()!!"
         );
     }
+    this.MvpMat.set(g_viewProjMatrix);
+    this.MvpMat.multiply(g_modelMatrix);
+    gl.uniformMatrix4fv(this.u_MvpMatLoc,  false,  this.MvpMat.elements); 
+
+    this.NormMat.setInverseOf(g_modelMatrix);
+	this.NormMat.transpose();
+    gl.uniformMatrix4fv(this.u_NormMatLoc, false, this.NormMat.elements);
     if (this.indexBuffer != undefined) {
         gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_BYTE, 0);
     }
     else {
-        gl.drawArrays(gl.LINES, 0, this.numIndices); //for ground grid
+        gl.drawArrays(gl.LINES, 0, this.numIndices); //special case for ground grid 
     }
 
 }

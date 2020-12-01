@@ -10,6 +10,11 @@ var g_yMclik = 0.0;
 var g_xMdragTot = 0.0;	// total (accumulated) mouse-drag amounts (in CVV coords).
 var g_yMdragTot = 0.0;
 
+var g_EyeX = 0.20, g_EyeY = 0.25, g_EyeZ = 4.25; //eye position default
+var g_LookX = 0.0, g_LookY = 0.0, g_LookZ = 0.0;
+var g_LookUp = 0.0;
+var g_speed = 1;
+
 // ===================================for dat-gui setup
 var params = { 
     left: -1.00,

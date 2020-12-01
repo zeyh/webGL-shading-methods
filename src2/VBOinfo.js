@@ -1,5 +1,4 @@
-
-
+/* the VBO details including vertices/color/normals/indices*/
 
 var cube_vertices = new Float32Array([
     1.0, 1.0, 1.0,  -1.0, 1.0, 1.0,  -1.0,-1.0, 1.0,   1.0,-1.0, 1.0, // v0-v1-v2-v3 front
@@ -36,7 +35,6 @@ var cube_indices = new Uint8Array([
 
 var [sphere_vertices, sphere_colors,sphere_indices] = generate_sphereVBOinfo(10, 0.9);
 var sphere_normals = sphere_vertices;
-
 function generate_sphereVBOinfo(sphere_div, colorFactor){
     var SPHERE_DIV = sphere_div;
   
@@ -87,4 +85,65 @@ function generate_sphereVBOinfo(sphere_div, colorFactor){
         }
     }
     return [vertices, colors, indices];
+}
+
+var [grid_vertices, grid_colors] = generate_gridVBOinfo(20);
+var grid_normals = grid_vertices;
+function generate_gridVBOinfo(xymax){
+    var floatsPerVertex = 3; // # of Float32Array elements used for each vertex
+    var xcount = 100; // # of lines to draw in x,y to make the grid.
+    var ycount = 100;
+    // var xymax = 50.0; // grid size; extends to cover +/-xymax in x and y.
+    var xColr = new Float32Array([1.0, 1.0, 0.3]); // bright yellow
+    var yColr = new Float32Array([0.5, 1.0, 0.5]); // bright green.
+
+    var vertices = new Float32Array(floatsPerVertex * 2 * (xcount + ycount));
+    var xgap = xymax / (xcount - 1); // HALF-spacing between lines in x,y;
+    var ygap = xymax / (ycount - 1); // (why half? because v==(0line number/2))
+    // First, step thru x values as we make vertical lines of constant-x:
+    for (v = 0, j = 0; v < 2 * xcount; v++, j += floatsPerVertex) {
+        if (v % 2 == 0) {
+            // put even-numbered vertices at (xnow, -xymax, 0)
+            vertices[j] = -xymax + v * xgap; // x
+            vertices[j + 1] = -xymax; // y
+            vertices[j + 2] = 0.0; // z
+            vertices[j + 3] = 1.0; // w.
+        } else {
+            // put odd-numbered vertices at (xnow, +xymax, 0).
+            vertices[j] = -xymax + (v - 1) * xgap; // x
+            vertices[j + 1] = xymax; // y
+            vertices[j + 2] = 0.0; // z
+            vertices[j + 3] = 1.0; // w.
+        }
+    }
+    // Second, step thru y values as wqe make horizontal lines of constant-y:
+    // (don't re-initialize j--we're adding more vertices to the array)
+    for (v = 0; v < 2 * ycount; v++, j += floatsPerVertex) {
+        if (v % 2 == 0) {
+            // put even-numbered vertices at (-xymax, ynow, 0)
+            vertices[j] = -xymax; // x
+            vertices[j + 1] = -xymax + v * ygap; // y
+            vertices[j + 2] = 0.0; // z
+            vertices[j + 3] = 1.0; // w.
+        } else {
+            // put odd-numbered vertices at (+xymax, ynow, 0).
+            vertices[j] = xymax; // x
+            vertices[j + 1] = -xymax + (v - 1) * ygap; // y
+            vertices[j + 2] = 0.0; // z
+            vertices[j + 3] = 1.0; // w.
+        }
+    }
+    var floatsPerVertex2 = 3;
+    var colors = new Float32Array(floatsPerVertex2 * 2 * (xcount + ycount));
+    for (let v = 0, j = 0; v < 2 * xcount; v++, j += floatsPerVertex2) {
+        colors[j + 0] = xColr[0]; // red
+        colors[j + 1] = xColr[1]; // grn
+        colors[j + 2] = xColr[2]; // blu
+    }
+    for (let v = 0; v < 2 * ycount; v++, j += floatsPerVertex2) {
+        colors[j + 0] = yColr[0]; // red
+        colors[j + 1] = yColr[1]; // grn
+        colors[j + 2] = yColr[2]; // blu
+    }
+    return [vertices, colors];
 }
