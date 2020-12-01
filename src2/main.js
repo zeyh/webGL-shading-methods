@@ -1,3 +1,25 @@
+/*
+* Done: individual VBO
+? Doing: Large, Slowly-spinning Sphere
+! TODO: Ground-Plane vs Grid?
+! TODO: 3D View Control: z-up? really??
+! TODO: Large, Slowly-spinning Sphere
+! TODO: Single-Viewport 
+! TODO: general diffuse shading
+! TODO: 3-Jointed Shape w/ diffuse shading*3 
+! TODO: Point light on the sphere
+! TODO: Gouraud/Phong shading
+! TODO: different-looking Phong Materials*3 -"materials_Ayerdi.js”
+! TODO: user-adjustable 3D light source
+! TODO: Interactive switching between all available lighting/shading methods*2
+! TODO: lighting/shading methods*4
+! TODO: user-switched materials for individual 3d part*1
+! TODO: user-selected distance dependencies???
+! TODO: second, ‘headlight’ light-source on/off
+! TODO: geometric shape distortions in shaders???
+! TODO: Simple Texture Maps emmisive
+*/
+
 "use strict"
 var g_canvasID;	
 var gl;	
@@ -54,4 +76,10 @@ function drawAll(){
     cube.switchToMe();
     cube.adjust();
     cube.draw();
+
+    // var sphere = new VBO_genetic(sphere_vertices, sphere_colors, sphere_normals, sphere_indices);
+    // sphere.init();
+    // sphere.switchToMe();
+    // sphere.adjust();
+    // sphere.draw();
 }

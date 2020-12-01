@@ -30,10 +30,10 @@ function VBO_genetic(vertices, colors, normals, indices) {
         '}\n';
 
     // ! VBO contents
-    this.vertices = vertices;
-    this.colors = colors;
-    this.normals = normals;
-    this.indices = indices;
+    this.vertices =  new Float32Array(vertices); //just to make sure...
+    this.colors =  new Float32Array(colors);
+    this.normals =  new Float32Array(normals);
+    this.indices = new Uint8Array(indices);
 
     this.vertexBuffer;
     this.colorBuffer;
@@ -135,7 +135,7 @@ VBO_genetic.prototype.adjust = function () { //any matrix transformations🍀
     var g_modelMatrix = new Matrix4(); 
     var g_viewProjMatrix = new Matrix4(); //should be the same for every vbo
 
-    g_modelMatrix.scale(0.5,0.2,0.5)
+    g_modelMatrix.scale(0.5,0.5,0.5)
     g_modelMatrix.rotate(currentAngle, 0,1,0)
 
     this.MvpMat.set(g_viewProjMatrix);
