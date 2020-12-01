@@ -1,5 +1,5 @@
 "use strict"
-function VBO_Cube() {
+function VBO_genetic(vertices, colors, normals, indices) {
     // ! diffuse shading
     this.VERT_SRC =
         "precision highp float;\n" +    
@@ -30,38 +30,10 @@ function VBO_Cube() {
         '}\n';
 
     // ! VBO contents
-    this.vertices = new Float32Array([
-        1.0, 1.0, 1.0,  -1.0, 1.0, 1.0,  -1.0,-1.0, 1.0,   1.0,-1.0, 1.0, // v0-v1-v2-v3 front
-        1.0, 1.0, 1.0,   1.0,-1.0, 1.0,   1.0,-1.0,-1.0,   1.0, 1.0,-1.0, // v0-v3-v4-v5 right
-        1.0, 1.0, 1.0,   1.0, 1.0,-1.0,  -1.0, 1.0,-1.0,  -1.0, 1.0, 1.0, // v0-v5-v6-v1 up
-       -1.0, 1.0, 1.0,  -1.0, 1.0,-1.0,  -1.0,-1.0,-1.0,  -1.0,-1.0, 1.0, // v1-v6-v7-v2 left
-       -1.0,-1.0,-1.0,   1.0,-1.0,-1.0,   1.0,-1.0, 1.0,  -1.0,-1.0, 1.0, // v7-v4-v3-v2 down
-        1.0,-1.0,-1.0,  -1.0,-1.0,-1.0,  -1.0, 1.0,-1.0,   1.0, 1.0,-1.0  // v4-v7-v6-v5 back
-    ]);
-    this.colors = new Float32Array([
-        0, 0.5, 1,   0, 0.5, 1,   0, 0.5, 1,   0, 0.5, 1,     // v0-v1-v2-v3 front
-        0, 0.5, 1,   0, 0.5, 1,   0, 0.5, 1,  0, 0.5, 1,     // v0-v3-v4-v5 right
-        0, 0.5, 1,   0, 0.5, 1,   0, 0.5, 1,   0, 0.5, 1,     // v0-v5-v6-v1 up
-        0, 0.5, 1,    0, 0.5, 1,   0, 0.5, 1,   0, 0.5, 1,      // v1-v6-v7-v2 left
-        0, 0.5, 1,    0, 0.5, 1,   0, 0.5, 1,  0, 0.5, 1,      // v7-v4-v3-v2 down
-        0, 0.5, 1,    0, 0.5, 1,   0, 0.5, 1,   0, 0.5, 1, 　    // v4-v7-v6-v5 back
-    ]);
-    this.normals = new Float32Array([
-        0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
-        1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,  // v0-v3-v4-v5 right
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,  // v0-v5-v6-v1 up
-       -1.0, 0.0, 0.0,  -1.0, 0.0, 0.0,  -1.0, 0.0, 0.0,  -1.0, 0.0, 0.0,  // v1-v6-v7-v2 left
-        0.0,-1.0, 0.0,   0.0,-1.0, 0.0,   0.0,-1.0, 0.0,   0.0,-1.0, 0.0,  // v7-v4-v3-v2 down
-        0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0   // v4-v7-v6-v5 back
-    ]);
-    this.indices = new Uint8Array([
-        0, 1, 2,   0, 2, 3,    // front
-        4, 5, 6,   4, 6, 7,    // right
-        8, 9,10,   8,10,11,    // up
-       12,13,14,  12,14,15,    // left
-       16,17,18,  16,18,19,    // down
-       20,21,22,  20,22,23     // back
-    ]);
+    this.vertices = vertices;
+    this.colors = colors;
+    this.normals = normals;
+    this.indices = indices;
 
     this.vertexBuffer;
     this.colorBuffer;
@@ -79,7 +51,7 @@ function VBO_Cube() {
     this.u_NormMatLoc; // GPU location for u_ModelMat uniform
 }
 
-VBO_Cube.prototype.init = function(){
+VBO_genetic.prototype.init = function(){
     this.shaderLoc = createProgram(gl, this.VERT_SRC, this.FRAG_SRC);
     if (!this.shaderLoc) {
         console.log(
@@ -121,7 +93,7 @@ VBO_Cube.prototype.init = function(){
     }
 }
 
-VBO_Cube.prototype.switchToMe = function () { //similar to previous set-up for draw()
+VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up for draw()
     gl.useProgram(this.shaderLoc);
     initAttributeVariable(gl, this.a_PosLoc, this.vertexBuffer);
     if (this.colorBuffer != undefined) {
@@ -133,7 +105,7 @@ VBO_Cube.prototype.switchToMe = function () { //similar to previous set-up for d
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 }
 
-VBO_Cube.prototype.isReady = function (){ //sanity check
+VBO_genetic.prototype.isReady = function (){ //sanity check
     var isOK = true;
     if (gl.getParameter(gl.CURRENT_PROGRAM) != this.shaderLoc) {
         console.log(
@@ -152,7 +124,7 @@ VBO_Cube.prototype.isReady = function (){ //sanity check
     return isOK;
 }
 
-VBO_Cube.prototype.adjust = function () { //any matrix transformations🍀
+VBO_genetic.prototype.adjust = function () { //any matrix transformations🍀
     if (this.isReady() == false) {
         console.log(
             "ERROR! before" +
@@ -175,7 +147,7 @@ VBO_Cube.prototype.adjust = function () { //any matrix transformations🍀
     gl.uniformMatrix4fv(this.u_NormMatLoc, false, this.NormMat.elements);
 };
 
-VBO_Cube.prototype.draw = function () { //finally drawing🙏
+VBO_genetic.prototype.draw = function () { //finally drawing🙏
     if (this.isReady() == false) {
         console.log(
             "ERROR! before" +

@@ -49,7 +49,7 @@ function main() {
 
 function drawAll(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    // Clear color and depth buffer
-    var cube = new VBO_Cube();
+    var cube = new VBO_genetic(cube_vertices, cube_colors, cube_normals, cube_indices);
     cube.init();
     cube.switchToMe();
     cube.adjust();
