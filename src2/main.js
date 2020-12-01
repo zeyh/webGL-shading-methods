@@ -32,7 +32,8 @@ function main() {
     var cube = new VBO_Cube();
     cube.init();
     cube.switchToMe();
-    cube.isReady();
+    cube.adjust();
+    cube.draw();
 
 
 

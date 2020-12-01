@@ -82,40 +82,18 @@ function VBObox0() {
     //----------------------Attribute offsets
     this.vboOffset_a_Pos0 = 0; 
     this.vboOffset_a_Colr0 = this.vboFcount_a_Pos0 * this.FSIZE;
-    // (4 floats * bytes/float)
-    // # of bytes from START of vbo to the START
-    // of 1st a_Colr0 attrib value in vboContents[]
-    //-----------------------GPU memory locations:
+
     this.vboLoc; // GPU Location for Vertex Buffer Object,
-    // returned by gl.createBuffer() function call
     this.shaderLoc; // GPU Location for compiled Shader-program
-    // set by compile/link of VERT_SRC and FRAG_SRC.
-    //------Attribute locations in our shaders:
     this.a_PosLoc; // GPU location for 'a_Pos0' attribute
     this.a_ColrLoc; // GPU location for 'a_Colr0' attribute
 
-    //---------------------- Uniform locations &values in our shaders
     this.ModelMat = new Matrix4(); // Transforms CVV axes to model axes.
     this.u_ModelMatLoc; // GPU location for u_ModelMat uniform
 }
 
 VBObox0.prototype.init = function () {
-    //=============================================================================
-    // Prepare the GPU to use all vertices, GLSL shaders, attributes, & uniforms
-    // kept in this VBObox. (This function usually called only once, within main()).
-    // Specifically:
-    // a) Create, compile, link our GLSL vertex- and fragment-shaders to form an
-    //  executable 'program' stored and ready to use inside the GPU.
-    // b) create a new VBO object in GPU memory and fill it by transferring in all
-    //  the vertex data held in our Float32array member 'VBOcontents'.
-    // c) Find & save the GPU location of all our shaders' attribute-variables and
-    //  uniform-variables (needed by switchToMe(), adjust(), draw(), reload(), etc.)
-    // -------------------
-    // CAREFUL!  before you can draw pictures using this VBObox contents,
-    //  you must call this VBObox object's switchToMe() function too!
-    //--------------------
-    // a) Compile,link,upload shaders-----------------------------------------------
-    this.shaderLoc = createProgram(gl, this.VERT_SRC, this.FRAG_SRC);
+      this.shaderLoc = createProgram(gl, this.VERT_SRC, this.FRAG_SRC);
     if (!this.shaderLoc) {
         console.log(
             this.constructor.name +
@@ -123,12 +101,9 @@ VBObox0.prototype.init = function () {
         );
         return;
     }
-    // CUTE TRICK: let's print the NAME of this VBObox object: tells us which one!
-    //  else{console.log('You called: '+ this.constructor.name + '.init() fcn!');}
 
     gl.program = this.shaderLoc; // (to match cuon-utils.js -- initShaders())
 
-    // b) Create VBO on GPU, fill it------------------------------------------------
     this.vboLoc = gl.createBuffer();
     if (!this.vboLoc) {
         console.log(
@@ -136,20 +111,11 @@ VBObox0.prototype.init = function () {
         );
         return;
     }
-    // Specify the purpose of our newly-created VBO on the GPU.  Your choices are:
-    //	== "gl.ARRAY_BUFFER" : the VBO holds vertices, each made of attributes
-    // (positions, colors, normals, etc), or
-    //	== "gl.ELEMENT_ARRAY_BUFFER" : the VBO holds indices only; integer values
-    // that each select one vertex from a vertex array stored in another VBO.
     gl.bindBuffer(
         gl.ARRAY_BUFFER, // GLenum 'target' for this GPU buffer
         this.vboLoc
     ); // the ID# the GPU uses for this buffer.
 
-    // Fill the GPU's newly-created VBO object with the vertex data we stored in
-    //  our 'vboContents' member (JavaScript Float32Array object).
-    //  (Recall gl.bufferData() will evoke GPU's memory allocation & management:
-    //    use gl.bufferSubData() to modify VBO contents without changing VBO size)
     gl.bufferData(
         gl.ARRAY_BUFFER, // GLenum target(same as 'bindBuffer()')
         this.vboContents, // JavaScript Float32Array
@@ -172,9 +138,7 @@ VBObox0.prototype.init = function () {
         );
         return -1; // error exit.
     }
-    // c2) Find All Uniforms:-----------------------------------------------------
-    //Get GPU storage location for each uniform var used in our shader programs:
-    this.u_ModelMatLoc = gl.getUniformLocation(this.shaderLoc, "u_ModelMat0");
+        this.u_ModelMatLoc = gl.getUniformLocation(this.shaderLoc, "u_ModelMat0");
     if (!this.u_ModelMatLoc) {
         console.log(
             this.constructor.name +

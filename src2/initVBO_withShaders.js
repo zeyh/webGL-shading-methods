@@ -1,5 +1,4 @@
 "use strict"
-
 function VBO_Cube() {
     // ! diffuse shading
     this.VERT_SRC =
@@ -97,10 +96,10 @@ VBO_Cube.prototype.init = function(){
 
     // ! init VBO
     this.vertexBuffer = initArrayBufferForLaterUse(gl, this.vertices, 3, gl.FLOAT);
-    this.colorBuffer = initArrayBufferForLaterUse(gl, this.colors, 4, gl.FLOAT);
-    this.indexBuffer = initElementArrayBufferForLaterUse(gl, this.indices, gl.UNSIGNED_BYTE);
+    this.colorBuffer = initArrayBufferForLaterUse(gl, this.colors, 3, gl.FLOAT);
     this.normalBuffer = initArrayBufferForLaterUse(gl, this.normals, 3, gl.FLOAT);
-    if (!this.vertexBuffer || !this.colorBuffer || !this.indexBuffer || !this.normalBuffer) {
+    this.indexBuffer = initElementArrayBufferForLaterUse(gl, this.indices, gl.UNSIGNED_BYTE);
+    if (!this.vertexBuffer || !this.colorBuffer || !this.normalBuffer || !this.indexBuffer) {
         console.log(
             this.constructor.name + ".init() failed to create VBO in GPU. Bye!"
         );
@@ -122,7 +121,7 @@ VBO_Cube.prototype.init = function(){
     }
 }
 
-VBO_Cube.prototype.switchToMe = function () { 
+VBO_Cube.prototype.switchToMe = function () { //similar to previous set-up for draw()
     gl.useProgram(this.shaderLoc);
     initAttributeVariable(gl, this.a_PosLoc, this.vertexBuffer);
     if (this.colorBuffer != undefined) {
@@ -134,7 +133,7 @@ VBO_Cube.prototype.switchToMe = function () {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 }
 
-VBO_Cube.prototype.isReady = function (){
+VBO_Cube.prototype.isReady = function (){ //sanity check
     var isOK = true;
     if (gl.getParameter(gl.CURRENT_PROGRAM) != this.shaderLoc) {
         console.log(
@@ -153,7 +152,7 @@ VBO_Cube.prototype.isReady = function (){
     return isOK;
 }
 
-VBO_Cube.prototype.adjust = function () {
+VBO_Cube.prototype.adjust = function () { //any matrix transformations🍀
     if (this.isReady() == false) {
         console.log(
             "ERROR! before" +
@@ -161,21 +160,36 @@ VBO_Cube.prototype.adjust = function () {
                 ".adjust() call you needed to call this.switchToMe()!!"
         );
     }
-    var g_modelMatrix = new Matrix4();
-    pushMatrix(g_modelMatrix);
-    g_modelMatrix.scale(0.5,2,0.5)
-    g_modelMatrix.rotate(currentAngle, 0,1,0)
-    draw(gl, normalProgram, cube2, viewProjMatrix);
-    g_modelMatrix = popMatrix();
+    var g_modelMatrix = new Matrix4(); 
+    var g_viewProjMatrix = new Matrix4(); //should be the same for every vbo
+
+    // pushMatrix(g_modelMatrix);
+    // g_modelMatrix.scale(0.5,2,0.5)
+    // g_modelMatrix.rotate(currentAngle, 0,1,0)
+    // g_modelMatrix = popMatrix();
+
+    this.MvpMat.set(g_viewProjMatrix);
+    this.MvpMat.multiply(g_modelMatrix);
+    gl.uniformMatrix4fv(this.u_MvpMatLoc,  false,  this.MvpMat.elements ); 
+
+    this.NormMat.setInverseOf(g_modelMatrix);
+	this.NormMat.transpose();
+    gl.uniformMatrix4fv(this.u_NormMatLoc, false, this.NormMat.elements);
 };
 
-VBO_Cube.prototype.draw = function () {
+VBO_Cube.prototype.draw = function () { //finally drawing🙏
     if (this.isReady() == false) {
         console.log(
             "ERROR! before" +
                 this.constructor.name +
                 ".draw() call you needed to call this.switchToMe()!!"
         );
+    }
+    if (this.indexBuffer != undefined) {
+        gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_BYTE, 0);
+    }
+    else {
+        gl.drawArrays(gl.LINES, 0, this.numIndices); //for ground grid
     }
 
 }
@@ -187,35 +201,31 @@ function initAttributeVariable(gl, a_attribute, buffer) {
     gl.enableVertexAttribArray(a_attribute);
 }
 
-function initArrayBufferForLaterUse(gl, data, num, type, attribute) {
-    // Create a buffer object
+function initArrayBufferForLaterUse(gl, data, num, type){
     var buffer = gl.createBuffer();
     if (!buffer) {
         console.log('Failed to create the buffer object');
         return null;
     }
-    // Write date into the buffer object
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer); 
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-    // Store the necessary information to assign the object to the attribute variable later
     buffer.num = num;
     buffer.type = type;
 
     return buffer;
 }
 
-function initElementArrayBufferForLaterUse(gl, data, type) {
-    // Create a buffer object
+function initElementArrayBufferForLaterUse(gl, indices, type) {
     var buffer = gl.createBuffer();
     if (!buffer) {
         console.log('Failed to create the buffer object');
         return null;
     }
-    // Write date into the buffer object
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
     buffer.type = type;
 
     return buffer;
