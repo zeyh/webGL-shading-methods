@@ -1,9 +1,9 @@
 /*
 init all vertex buffer objects individually & used later in main.js:
-has normals: cube2，sphere, ground plane
+has normals: cube2，sphere, ground plane, ground grid
 TODO: normals for thunder, semi-sphere
 */
-"use strict"
+// "use strict"
 function initVertexBuffersForCube2(gl) { // Create a cube2 
     // Generate coordinates
     var vertices = new Float32Array([
@@ -72,7 +72,7 @@ function initVertexBuffersForCube2(gl) { // Create a cube2
 }
 
 function initVertexBuffersForSphere(gl, colorFactor) { // Create a sphere
-    var SPHERE_DIV = 6;
+    var SPHERE_DIV = 10;
   
     var i, ai, si, ci;
     var j, aj, sj, cj;
@@ -343,7 +343,7 @@ function initVertexBuffersForGroundGrid(gl) {
     var xgap = xymax / (xcount - 1); // HALF-spacing between lines in x,y;
     var ygap = xymax / (ycount - 1); // (why half? because v==(0line number/2))
     // First, step thru x values as we make vertical lines of constant-x:
-    for (let v = 0, j = 0; v < 2 * xcount; v++, j += floatsPerVertex) {
+    for (v = 0, j = 0; v < 2 * xcount; v++, j += floatsPerVertex) {
         if (v % 2 == 0) {
             // put even-numbered vertices at (xnow, -xymax, 0)
             vertices[j] = -xymax + v * xgap; // x
@@ -360,7 +360,7 @@ function initVertexBuffersForGroundGrid(gl) {
     }
     // Second, step thru y values as wqe make horizontal lines of constant-y:
     // (don't re-initialize j--we're adding more vertices to the array)
-    for (let v = 0; v < 2 * ycount; v++, j += floatsPerVertex) {
+    for (v = 0; v < 2 * ycount; v++, j += floatsPerVertex) {
         if (v % 2 == 0) {
             // put even-numbered vertices at (-xymax, ynow, 0)
             vertices[j] = -xymax; // x
@@ -375,7 +375,6 @@ function initVertexBuffersForGroundGrid(gl) {
             vertices[j + 3] = 1.0; // w.
         }
     }
-
     var floatsPerVertex2 = 3;
     var colors = new Float32Array(floatsPerVertex2 * 2 * (xcount + ycount));
     for (let v = 0, j = 0; v < 2 * xcount; v++, j += floatsPerVertex2) {
@@ -397,6 +396,11 @@ function initVertexBuffersForGroundGrid(gl) {
         console.log("fail to Write the vertex property to Buffer Objects")
         return -1;
     }
+    o.normalBuffer = initArrayBufferForLaterUse(gl, new Float32Array(vertices), 3, gl.FLOAT, 'a_Normal');
+    if (!o.normalBuffer){
+        console.log("normal buffer initVertexBuffersForSphere")
+        return -1; 
+    } 
 
     // Unbind the buffer object
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -406,7 +410,7 @@ function initVertexBuffersForGroundGrid(gl) {
 
 function initVertexBuffersForGroundPlane(gl){ //ground big plane with xymax the size
     var floatsPerVertex = 3; // # of Float32Array elements used for each vertex
-    var xymax = 20.0; // grid size; extends to cover +/-xymax in x and y.
+    var xymax = 50.0; // plane size; extends to cover +/-xymax in x and y.
     var vertices = new Float32Array([   
         xymax/2, xymax/2, 0,
         -1*xymax/2, xymax/2, 0,

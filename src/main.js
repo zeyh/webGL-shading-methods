@@ -1,10 +1,12 @@
 /*
-* Done: % Ground-Plane Grid
-* Done: % Large, Slowly-spinning Sphere
-* Done: % Single-Viewport 
-* Done: % 3D View Control
+* Almost Done: Ground-Plane vs Grid?
+* Almost Done: 3D View Control: z-up? really??
+* Done: Large, Slowly-spinning Sphere
+* Done: Single-Viewport 
+* Done: general diffuse shading
 ? Doing: 3-Jointed Shape w/ diffuse shading*3 
-! TODO: Gouraud/Phong shading
+? Doing: Point light on the sphere
+? Doing: Gouraud/Phong shading
 ! TODO: different-looking Phong Materials*3 -"materials_Ayerdi.js”
 ! TODO: user-adjustable 3D light source
 ! TODO: Interactive switching between all available lighting/shading methods*2
@@ -54,7 +56,7 @@ function main() {
     var sphere = initVertexBuffersForSphere(gl, 0.6);
     var cube2 = initVertexBuffersForCube2(gl);
     var groundPlane = initVertexBuffersForGroundPlane(gl);
-
+    var groundGrid = initVertexBuffersForGroundGrid(gl);
     // if (!triangle || !cube || !groundGrid || !thunder 
     //     || !semiSphere || !axis || !groundPlane || !sphere ) {
     //     console.log('Failed to set the vertex information');
@@ -68,10 +70,16 @@ function main() {
         console.log('Failed to set the vertex information');
         return;
     }
-    if ( !groundPlane ) {
+    if ( !groundGrid ||  !groundPlane) {
         console.log('Failed to set the vertex information');
         return;
     }
+
+    // ! vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    // var cube3 = new VBO_Cube3();
+    // cube3.init(gl);
+    // ! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
     window.addEventListener("mousedown", myMouseDown);
     window.addEventListener("mousemove", myMouseMove);
@@ -95,7 +103,7 @@ function main() {
 
 
     // var vbArray = [triangle, cube, thunder, groundGrid, semiSphere, axis, thunder2, axis2, groundPlane, sphere];
-    var vbArray = [null, null, null, null, null, null, null, null, groundPlane, sphere, cube2];
+    var vbArray = [null, null, null, groundGrid, null, null, null, null, groundPlane, sphere, cube2];
     var tick = function () {
         canvas.width = window.innerWidth * 1; //resize canvas
         canvas.height = window.innerHeight * 7 / 10;

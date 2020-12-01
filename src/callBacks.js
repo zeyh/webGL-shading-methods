@@ -1,4 +1,7 @@
 /* anything involving html events handling*/
+var quatMatrix = new Matrix4();   
+var qNew = new Quaternion(0, 0, 0, 1); // most-recent mouse drag's rotation
+var qTot = new Quaternion(0, 0, 0, 1);	// 'current' orientation (made from qNew)
 
 // * HTML events
 var g_isDrag = false;		// mouse-drag: true when user holds down mouse button

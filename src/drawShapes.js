@@ -6,9 +6,6 @@ var viewProjMatrix  = new Matrix4();
 var normalMatrix = new Matrix4(); // Transformation matrix for normals
 
 
-var quatMatrix = new Matrix4();   
-var qNew = new Quaternion(0, 0, 0, 1); // most-recent mouse drag's rotation
-var qTot = new Quaternion(0, 0, 0, 1);	// 'current' orientation (made from qNew)
 
 var g_EyeX = 0.20, g_EyeY = 0.25, g_EyeZ = 4.25; //eye position default
 var g_LookX = 0.0, g_LookY = 0.0, g_LookZ = 0.0;
@@ -22,9 +19,6 @@ function drawScene(gl, normalProgram, [triangle, cube, thunder, groundGrid, semi
 
     //drawing the spinning cube
     pushMatrix(g_modelMatrix);
-    normalMatrix.setInverseOf(g_modelMatrix);
-    normalMatrix.transpose();
-    gl.uniformMatrix4fv(normalProgram.u_NormalMatrix, false, normalMatrix.elements);
     g_modelMatrix.scale(0.5,2,0.5)
     g_modelMatrix.rotate(currentAngle, 0,1,0)
     draw(gl, normalProgram, cube2, viewProjMatrix);
@@ -32,9 +26,7 @@ function drawScene(gl, normalProgram, [triangle, cube, thunder, groundGrid, semi
 
     //drawing the sphere
     pushMatrix(g_modelMatrix);
-    normalMatrix.setInverseOf(g_modelMatrix);
-    normalMatrix.transpose();
-    gl.uniformMatrix4fv(normalProgram.u_NormalMatrix, false, normalMatrix.elements);
+    g_modelMatrix.translate(0,3.5,0)
     g_modelMatrix.rotate(currentAngle, 0,1,0)
     draw(gl, normalProgram, sphere, viewProjMatrix);
     g_modelMatrix = popMatrix();
