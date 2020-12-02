@@ -169,11 +169,7 @@ function initWindow() {
     window.addEventListener('resize', resizeCanvas, false);
 }
 
-function clearDrag() {
-    // Called when user presses 'Clear' button in our webpage
-    g_xMdragTot = 0.0;
-    g_yMdragTot = 0.0;
-}
+
 
 // * ===================Keyboard event-handling Callbacks===========
 // ref: https://keycode.info/ http://learnwebgl.brown37.net/07_cameras/camera_rotating_motion.html
@@ -225,9 +221,38 @@ function keyArrowRotateUp(ev) {//change x from -1 to 1
     } else { return; }
 }
 
-
+function materialKeyPress(ev) {
+        switch(ev.keyCode)
+        {
+            case 77:	// UPPER-case 'M' key:
+            case 109:	// LOWER-case 'm' key:
+                g_matlSel = (g_matlSel +1)%MATL_DEFAULT;	// see materials_Ayerdi.js for list
+                g_matl0.setMatl(g_matlSel);					// set new material reflectances,
+                break;
+            // case 83: // UPPER-case 's' key:
+            //     matl0.K_shiny += 1.0;								// INCREASE shinyness, but with a
+            //     if(matl0.K_shiny > 128.0) matl0.K_shiny = 128.0;	// upper limit.
+            //     console.log('UPPERcase S: ++K_shiny ==', matl0.K_shiny,'\n');	
+            //     break;
+            // case 115:	// LOWER-case 's' key:
+            //     matl0.K_shiny += -1.0;								// DECREASE shinyness, but with a
+            //     if(matl0.K_shiny < 1.0) matl0.K_shiny = 1.0;		// lower limit.
+            //     console.log('lowercase s: --K_shiny ==', matl0.K_shiny, '\n');
+            //     break;
+            default:
+            break;
+        }
+}
+    
 
 // * ===================Keyboard event-handling Callbacks===========
+function clearDrag() {
+    // Called when user presses 'Clear' button in our webpage
+    g_xMdragTot = 0.0;
+    g_yMdragTot = 0.0;
+    g_lamp0.I_pos.elements.set([6.0, 5.0, 5.0]);
+}
+
 function mouseWheel(en) {
     if (en.deltaY < 0) {
         g_viewScale -= 0.05;
@@ -253,6 +278,8 @@ function myMouseDown(ev) {
 
 };
 
+var g_lamp0PosY, g_lamp0PosZ;
+var g_eyePosY, g_eyePosZ;
 function myMouseMove(ev) {
     if (g_isDrag == false) return;
 
@@ -263,10 +290,21 @@ function myMouseMove(ev) {
     var x = (xp - canvas.width / 2) / (canvas.width / 2);
     var y = (yp - canvas.height / 2) / (canvas.height / 2);
 
+    // g_lamp0.I_pos.elements.set([	 //TODO: somehow unable to change directly
+    //     g_lamp0.I_pos.elements[0],
+    //     g_lamp0.I_pos.elements[1] + 4.0*(x-g_xMclik),	// Horiz drag: change world Y
+    //     g_lamp0.I_pos.elements[2] + 4.0*(y-g_yMclik) 	// Vert. drag: change world Z
+    // ]);
+
+    g_lamp0PosY = g_lamp0.I_pos.elements[1] + 8.0*(x-g_xMclik);
+    g_lamp0PosZ = g_lamp0.I_pos.elements[2] + 8.0*(y-g_yMclik);
+    g_eyePosY = 8.0*(x-g_xMclik);
+    g_eyePosZ = 8.0*(y-g_yMclik);
+
     // find how far we dragged the mouse:
     g_xMdragTot += (x - g_xMclik);
     g_yMdragTot += (y - g_yMclik);
-    dragQuat(x - g_xMclik, y - g_yMclik);
+    
     g_xMclik = x;
     g_yMclik = y;
 };
@@ -283,7 +321,8 @@ function myMouseUp(ev) {
     g_isDrag = false;
     g_xMdragTot += (x - g_xMclik);
     g_yMdragTot += (y - g_yMclik);
-    dragQuat(x - g_xMclik, y - g_yMclik);
+    // console.log('myMouseUp  (CVV coords  ):  x, y=\t',x,',\t',y);
+    // dragQuat(x - g_xMclik, y - g_yMclik);
     // console.log("yclick: ", g_yMclik)
 
 };

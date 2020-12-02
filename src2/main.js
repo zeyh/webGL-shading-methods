@@ -25,6 +25,7 @@ var canvas;
 var gl;	
 var g_viewProjMatrix;
 var g_modelMatrix;
+var vboArray;
 
 function main() {
     console.log("I'm in webglDrawing.js version 2 right now...");
@@ -45,6 +46,7 @@ function main() {
         keyQE(ev);
         keyArrowRotateRight(ev);
         keyArrowRotateUp(ev);
+        materialKeyPress(ev);
     };
 
     // Set the clear color and enable the depth test
@@ -66,14 +68,21 @@ function main() {
     //blinn phong shading
     var sphere = new VBO_genetic(phongVert, phongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 2);
     sphere.init();
+    //draggable light
+    var sphere_drag = new VBO_genetic(draggablePhongVert, draggablePhongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 3);
+    sphere_drag.init();
+    //Fog
+    // var cube_fog = new VBO_genetic(diffuseVert, diffuseFrag, cube_vertices, cube_colors, cube_normals, cube_indices, 0);
+    // cube_fog.init();
 
-    var vboArray = [grid, cube, sphere, cube_red];
+    vboArray = [grid, cube, sphere, cube_red, sphere_drag, null];
 
     var tick = function () {
         canvas.width = window.innerWidth * 1; //resize canvas
         canvas.height = window.innerHeight * 7 / 10;
         currentAngle = animate(currentAngle);
-        
+        g_cloudAngle = animateCloud();
+
         // ! setting view control
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    // Clear color and depth buffer
         gl.viewport(0, 0, canvas.width, canvas.height);
@@ -92,36 +101,53 @@ function main() {
 
 }
 
-function drawAll([grid, cube, sphere, cube_red]){
+
+function drawAll([grid, cube, sphere, cube_red, sphere_drag, cube_fog]){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    // Clear color and depth buffer
 
     //draw cube
     pushMatrix(g_modelMatrix);
-    g_modelMatrix.setScale(0.5,0.5,0.5);
+    g_modelMatrix.setScale(0.3,1.5,0.3);
     g_modelMatrix.rotate(currentAngle, 0,1,0);
     cube.switchToMe();
     cube.draw(g_modelMatrix, g_viewProjMatrix);
     g_modelMatrix = popMatrix();
 
-    //draw red point light cube
+    //draw point light cube
     pushMatrix(g_modelMatrix);
-    g_modelMatrix.setTranslate(-3,0,0);
+    g_modelMatrix.setTranslate(-3.4,2.1,0);
     g_modelMatrix.rotate(0.5, 1,0,0);
     g_modelMatrix.rotate(currentAngle, 0,1,0);
-    g_modelMatrix.scale(0.5,0.5,0.5);
+    g_modelMatrix.scale(1.2,0.45,1.2);
     cube_red.switchToMe();
     cube_red.draw(g_modelMatrix, g_viewProjMatrix);
     g_modelMatrix = popMatrix();
 
+    //draw cube with fog
+    // pushMatrix(g_modelMatrix);
+    // g_modelMatrix.setScale(0.3,1.5,0.3);
+    // g_modelMatrix.rotate(currentAngle, 0,1,0);
+    // cube_fog.switchToMe();
+    // cube_fog.draw(g_modelMatrix, g_viewProjMatrix);
+    // g_modelMatrix = popMatrix();
 
-    //draw sphere
+    //blinn phong lighting sphere
+    pushMatrix(g_modelMatrix);
+    g_modelMatrix.setScale(0.6,0.6,0.6);
+    g_modelMatrix.translate(-4.2,1,0);
+    sphere.switchToMe();
+    sphere.draw(g_modelMatrix, g_viewProjMatrix);
+    g_modelMatrix = popMatrix();
+
+
+    //draw draggable light source on sphere
     if(!hideSphere){
         pushMatrix(g_modelMatrix);
         g_modelMatrix.setScale(1,1,1);
         g_modelMatrix.translate(0,3,0);
         // g_modelMatrix.rotate(currentAngle, 0,1,0);
-        sphere.switchToMe();
-        sphere.draw(g_modelMatrix, g_viewProjMatrix);
+        sphere_drag.switchToMe();
+        sphere_drag.draw(g_modelMatrix, g_viewProjMatrix);
         g_modelMatrix = popMatrix();
     }
 
