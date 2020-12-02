@@ -290,7 +290,6 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         // Distance of fog [where fog starts, where fog completely covers object]
         // Position of eye point (world coordinates)
         var eye = new Float32Array([25, 65, 35, 1.0]);
-        console.log(g_fogDist)
         gl.uniform3fv(this.u_FogColor, fogColor); // Colors
         gl.uniform2fv(this.u_FogDist, g_fogDist);   // Starting point and end point
         gl.uniform4fv(this.u_eyePosWorld, eye);           // Eye point
