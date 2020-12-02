@@ -5,8 +5,9 @@
 * Done: 3D View Control: z-up? really??
 * Done: Single-Viewport 
 * Done: general diffuse shading
-? Doing: Point light on the sphere
-! TODO: Gouraud/Phong shading
+* Done: Point light on the cube
+? Doing: Phong shading
+! TODO: Gouraud/Phong shading*4
 ! TODO: different-looking Phong Materials*3 -"materials_Ayerdi.js”
 ! TODO: user-adjustable 3D light source
 ! TODO: Interactive switching between all available lighting/shading methods*2
@@ -54,13 +55,19 @@ function main() {
     g_modelMatrix = new Matrix4(); 
 
 
-    var grid = new VBO_genetic(diffuseVert, diffuseFrag, grid_vertices, grid_colors, grid_normals, null);
+    var grid = new VBO_genetic(diffuseVert, diffuseFrag, grid_vertices, grid_colors, grid_normals, null, 0);
     grid.init();
-    var cube = new VBO_genetic(diffuseVert, diffuseFrag, cube_vertices, cube_colors, cube_normals, cube_indices);
+    var cube = new VBO_genetic(diffuseVert, diffuseFrag, cube_vertices, cube_colors, cube_normals, cube_indices, 0);
     cube.init();
-    var sphere = new VBO_genetic(diffuseVert, diffuseFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices);
+
+    //pointLight
+    var cube_red = new VBO_genetic(pointLightVert, pointLightFrag, cube_vertices, cube_colors_white, cube_normals, cube_indices, 1);
+    cube_red.init();
+    //blinn phong shading
+    var sphere = new VBO_genetic(phongVert, phongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 2);
     sphere.init();
-    var vboArray = [grid, cube, sphere];
+
+    var vboArray = [grid, cube, sphere, cube_red];
 
     var tick = function () {
         canvas.width = window.innerWidth * 1; //resize canvas
@@ -85,7 +92,7 @@ function main() {
 
 }
 
-function drawAll([grid, cube, sphere]){
+function drawAll([grid, cube, sphere, cube_red]){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    // Clear color and depth buffer
 
     //draw cube
@@ -96,12 +103,23 @@ function drawAll([grid, cube, sphere]){
     cube.draw(g_modelMatrix, g_viewProjMatrix);
     g_modelMatrix = popMatrix();
 
+    //draw red point light cube
+    pushMatrix(g_modelMatrix);
+    g_modelMatrix.setTranslate(-3,0,0);
+    g_modelMatrix.rotate(0.5, 1,0,0);
+    g_modelMatrix.rotate(currentAngle, 0,1,0);
+    g_modelMatrix.scale(0.5,0.5,0.5);
+    cube_red.switchToMe();
+    cube_red.draw(g_modelMatrix, g_viewProjMatrix);
+    g_modelMatrix = popMatrix();
+
+
     //draw sphere
     if(!hideSphere){
         pushMatrix(g_modelMatrix);
         g_modelMatrix.setScale(1,1,1);
         g_modelMatrix.translate(0,3,0);
-        g_modelMatrix.rotate(currentAngle, 0,1,0);
+        // g_modelMatrix.rotate(currentAngle, 0,1,0);
         sphere.switchToMe();
         sphere.draw(g_modelMatrix, g_viewProjMatrix);
         g_modelMatrix = popMatrix();

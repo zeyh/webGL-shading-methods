@@ -1,8 +1,9 @@
 "use strict"
-function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices) {
+function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices, lightSpec) {
     // ! diffuse shading
     this.VERT_SRC = vertSrc;
     this.FRAG_SRC = fragSrc;
+    this.lightSpec = lightSpec;
 
     // ! VBO contents
     this.vertices =  new Float32Array(vertices); //just to make sure...
@@ -27,6 +28,26 @@ function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices) {
     this.u_MvpMatLoc; // GPU location for u_ModelMat uniform
     this.NormMat = new Matrix4(); // Transforms CVV axes to model axes.
     this.u_NormMatLoc; // GPU location for u_ModelMat uniform
+    this.ModelMat = new Matrix4();
+    this.u_ModelMatLoc;
+
+    // ! point light (spec == 1)
+    this.u_LightColor;
+    this.u_LightPosition;
+    this.u_AmbientLight;
+
+    //! phong  (spec == 2)
+    this.u_eyePosWorld;
+    // for Phong light source:
+    this.u_Lamp0Pos;
+    this.u_Lamp0Amb;
+    this.u_Lamp0Diff;
+    this. u_Lamp0Spec;
+    // for Phong material/reflectance
+    this.u_Ke;
+    this.u_Ka;
+    this.u_Kd;
+    this.u_Ks;
 }
 
 VBO_genetic.prototype.init = function(){
@@ -46,7 +67,6 @@ VBO_genetic.prototype.init = function(){
 
     // ! init VBO
     this.vertexBuffer = initArrayBufferForLaterUse(gl, this.vertices, 3, gl.FLOAT);
-    this.colorBuffer = initArrayBufferForLaterUse(gl, this.colors, 3, gl.FLOAT);
     this.normalBuffer = initArrayBufferForLaterUse(gl, this.normals, 3, gl.FLOAT);
     if(this.indices.length > 0){
         this.indexBuffer = initElementArrayBufferForLaterUse(gl, this.indices, gl.UNSIGNED_BYTE);
@@ -57,26 +77,80 @@ VBO_genetic.prototype.init = function(){
             return;
         }
     }
-    if (!this.vertexBuffer || !this.colorBuffer || !this.normalBuffer) {
+    if (!this.vertexBuffer || !this.normalBuffer) {
         console.log(
             this.constructor.name + ".init() failed to create VBO in GPU. Bye!"
         );
         return;
     }
+    if(this.lightSpec != 2){ //assign color if not phong
+        this.colorBuffer = initArrayBufferForLaterUse(gl, this.colors, 3, gl.FLOAT);
+        this.a_ColrLoc = gl.getAttribLocation(this.shaderLoc, "a_Color");
+        if (this.a_ColrLoc < 0 || !this.colorBuffer) {
+            console.log(
+                this.constructor.name + ".init() failed to create VBO in GPU. Bye! [colorBuffer]"
+            );
+            return;
+        }
+    }
+
 
     // ! init attribute locations
-    this.a_PosLoc = gl.getAttribLocation(this.shaderLoc, "a_Position0");
-    this.a_ColrLoc = gl.getAttribLocation(this.shaderLoc, "a_Color0");
-    this.a_NormLoc = gl.getAttribLocation(this.shaderLoc, "a_Normal0");
-    this.u_MvpMatLoc = gl.getUniformLocation(this.shaderLoc, "u_MvpMatrix0");
-    this.u_NormMatLoc = gl.getUniformLocation(this.shaderLoc, "u_NormalMatrix0");
-    if (this.a_PosLoc < 0 || this.a_ColrLoc < 0 || this.a_NormLoc < 0 || !this.u_MvpMatLoc || !this.u_NormMatLoc) {
+    this.a_PosLoc = gl.getAttribLocation(this.shaderLoc, "a_Position");
+    this.a_NormLoc = gl.getAttribLocation(this.shaderLoc, "a_Normal");
+    
+    this.u_ModelMatLoc = gl.getUniformLocation(this.shaderLoc, 'u_ModelMatrix'); //may not be used and null for simple diffuse lighting
+    this.u_MvpMatLoc = gl.getUniformLocation(this.shaderLoc, "u_MvpMatrix");
+    this.u_NormMatLoc = gl.getUniformLocation(this.shaderLoc, "u_NormalMatrix");
+    if (this.a_PosLoc < 0 || this.a_NormLoc < 0 || !this.u_MvpMatLoc || !this.u_NormMatLoc) {
         console.log(
             this.constructor.name +
                 ".init() failed to get the GPU location of attributes"
         );
         return -1; // error exit.
     }
+    if(this.lightSpec == 2){ //Blinn Phong
+        this.u_eyePosWorld = gl.getUniformLocation(this.shaderLoc, 'u_eyePosWorld');
+        if (!this.u_eyePosWorld) {
+            console.log('Failed to get matrix storage locations [u_eyePosWorld]');
+            return;
+        }
+
+        //light source✨
+        this.u_Lamp0Pos  = gl.getUniformLocation(this.shaderLoc, 	'u_Lamp0Pos');
+        this.u_Lamp0Amb  = gl.getUniformLocation(this.shaderLoc, 	'u_Lamp0Amb');
+        this.u_Lamp0Diff = gl.getUniformLocation(this.shaderLoc, 	'u_Lamp0Diff');
+        this.u_Lamp0Spec = gl.getUniformLocation(this.shaderLoc,	'u_Lamp0Spec');
+        if( !this.u_Lamp0Pos || !this.u_Lamp0Amb ||!this.u_Lamp0Diff ||!this.u_Lamp0Spec) {//|| !u_Lamp0Diff	) { // || !u_Lamp0Spec	) {
+            console.log('Failed to get the Lamp0 storage locations');
+            return;
+        }
+        //Phong material/reflectance:
+        this.u_Ke = gl.getUniformLocation(this.shaderLoc, 'u_Ke');
+        this.u_Ka = gl.getUniformLocation(this.shaderLoc, 'u_Ka');
+        this.u_Kd = gl.getUniformLocation(this.shaderLoc, 'u_Kd');
+        this.u_Ks = gl.getUniformLocation(this.shaderLoc, 'u_Ks');
+        if(!this.u_Ke || !this.u_Ka || !this.u_Kd ||!this.u_Ks) {
+            console.log('Failed to get the Phong Reflectance storage locations');
+            return;
+        }
+    }
+    if(this.lightSpec == 1){ //PointLight
+        if ( !this.u_ModelMatLoc ) {
+            console.log(
+                this.constructor.name +
+                    ".init() failed to get the GPU location of attributes [u_ModelMatLoc]"
+            );return -1; // error exit.
+        }
+        this.u_LightColor = gl.getUniformLocation(this.shaderLoc, 'u_LightColor');
+        this.u_LightPosition = gl.getUniformLocation(this.shaderLoc, 'u_LightPosition');
+        this.u_AmbientLight = gl.getUniformLocation(this.shaderLoc, 'u_AmbientLight');
+        if ( !this.u_LightColor || !this.u_LightPosition　|| !this.u_AmbientLight) { 
+            console.log('Failed to get the light storage location');
+            return;
+        }
+    }
+
 }
 
 VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up for draw()
@@ -90,6 +164,30 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
     }
     if(this.indexBuffer != undefined) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    }
+    if(this.lightSpec == 1){
+        // Set the light color (white)
+        gl.uniform3f(this.u_LightColor, 1.0, 0.5, 0.5);
+        // Set the light direction (in the world coordinate)
+        gl.uniform3f(this.u_LightPosition, -3.5, 1.0, 3.5);
+        // Set the ambient light
+        gl.uniform3f(this.u_AmbientLight, 0.5, 0.5, 0.5);
+    }
+    if(this.lightSpec == 2){
+        // Position the first light source in World coords:  then Set its light output: 
+        gl.uniform4f(this.u_Lamp0Pos, 6.0, 6.0, 6.0, 1.0);
+        gl.uniform3f(this.u_Lamp0Amb,  0.4, 0.4, 0.4);		// ambient
+        gl.uniform3f(this.u_Lamp0Diff, 1.0, 1.0, 1.0);		// diffuse
+        gl.uniform3f(this.u_Lamp0Spec, 1.0, 1.0, 1.0);		// Specular
+
+        // Set the Phong materials' reflectance:
+        gl.uniform3f(this.u_Ke, 0.0, 0.0, 0.0);				// Ke emissive
+        gl.uniform3f(this.u_Ka, 0.6, 0.2, 0.1);				// Ka ambient
+        gl.uniform3f(this.u_Kd, 0.8, 0.5, 0.1);				// Kd diffuse
+        gl.uniform3f(this.u_Ks, 0.8, 0.8, 0.8);				// Ks specular
+
+        // Pass the eye position to u_eyePosWorld
+	    gl.uniform4f(this.u_eyePosWorld, 2,4,5, 1);
     }
 }
 
@@ -121,6 +219,9 @@ VBO_genetic.prototype.draw = function (g_modelMatrix, g_viewProjMatrix) { //fina
                 ".draw() call you needed to call this.switchToMe()!!"
         );
     }
+    this.ModelMat.set(g_modelMatrix);
+    gl.uniformMatrix4fv(this.u_ModelMatLoc, false, this.ModelMat.elements);
+
     this.MvpMat.set(g_viewProjMatrix);
     this.MvpMat.multiply(g_modelMatrix);
     gl.uniformMatrix4fv(this.u_MvpMatLoc,  false,  this.MvpMat.elements); 
