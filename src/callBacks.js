@@ -183,14 +183,17 @@ function keyAD(ev) {
     } else { return; }
 }
 
+var g_fogDist = new Float32Array([55, 80]);
 function keyWS(ev) {
     if (ev.keyCode == 83) { // w moving forward
         g_EyeZ += 0.1 * g_speed;
         g_LookZ += 0.1 * g_speed;
+        if (g_fogDist[1] > g_fogDist[0]) g_fogDist[1] -= 1;
 
     } else if (ev.keyCode == 87) { // s moving backward
         g_EyeZ -= 0.1 * g_speed;
         g_LookZ -= 0.1 * g_speed;
+        g_fogDist[1]  += 1;
     } else { return; }
 }
 

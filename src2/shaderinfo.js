@@ -208,3 +208,34 @@ var draggablePhongFrag =
     '  vec3 speculr = u_LampSet[0].spec * u_MatlSet[0].spec * e64;\n' +
     '  gl_FragColor = vec4(emissive + ambient + diffuse + speculr , 1.0);\n' +
     '}\n';
+
+var fogVert = 
+    'attribute vec4 a_Position;\n' +
+    'attribute vec4 a_Color;\n' +
+    'uniform mat4 u_MvpMatrix;\n' +
+    'uniform mat4 u_ModelMatrix;\n' +
+    'uniform vec4 u_eyePosWorld;\n' +     // Position of eye point (world coordinates)
+    'varying vec4 v_Color;\n' +
+    'varying float v_Dist;\n' +
+    'void main() {\n' +
+    '  gl_Position = u_MvpMatrix * a_Position;\n' +
+    '  v_Color = a_Color;\n' +
+       // Calculate the distance to each vertex from eye point
+    '  v_Dist = distance(u_ModelMatrix * a_Position, u_eyePosWorld);\n' +
+    '}\n';
+
+var fogFrag =
+    '#ifdef GL_ES\n' +
+    'precision mediump float;\n' +
+    '#endif\n' +
+    'uniform vec3 u_FogColor;\n' + // Color of Fog
+    'uniform vec2 u_FogDist;\n' +  // Distance of Fog (starting point, end point)
+    'varying vec4 v_Color;\n' +
+    'varying float v_Dist;\n' +
+    'void main() {\n' +
+       // Calculation of fog factor (factor becomes smaller as it goes further away from eye point)
+    '  float fogFactor = clamp((u_FogDist.y - v_Dist) / (u_FogDist.y - u_FogDist.x), 0.0, 1.0);\n' +
+       // Stronger fog as it gets further: u_FogColor * (1 - fogFactor) + v_Color * fogFactor
+    '  vec3 color = mix(u_FogColor, vec3(v_Color), fogFactor);\n' +
+    '  gl_FragColor = vec4(color, v_Color.a);\n' +
+    '}\n';   

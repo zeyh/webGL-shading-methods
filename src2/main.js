@@ -59,23 +59,28 @@ function main() {
 
     var grid = new VBO_genetic(diffuseVert, diffuseFrag, grid_vertices, grid_colors, grid_normals, null, 0);
     grid.init();
+
+    //diffuse - 0
     var cube = new VBO_genetic(diffuseVert, diffuseFrag, cube_vertices, cube_colors, cube_normals, cube_indices, 0);
     cube.init();
 
-    //pointLight
+    //pointLight - 1
     var cube_red = new VBO_genetic(pointLightVert, pointLightFrag, cube_vertices, cube_colors_white, cube_normals, cube_indices, 1);
     cube_red.init();
-    //blinn phong shading
+
+    //blinn phong shading - 2
     var sphere = new VBO_genetic(phongVert, phongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 2);
     sphere.init();
-    //draggable light
+
+    //draggable light - 3
     var sphere_drag = new VBO_genetic(draggablePhongVert, draggablePhongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 3);
     sphere_drag.init();
-    //Fog
-    // var cube_fog = new VBO_genetic(diffuseVert, diffuseFrag, cube_vertices, cube_colors, cube_normals, cube_indices, 0);
-    // cube_fog.init();
 
-    vboArray = [grid, cube, sphere, cube_red, sphere_drag, null];
+    //Fog - 4
+    var cube_fog = new VBO_genetic(fogVert, fogFrag, cube_vertices, cube_colors_multi, cube_normals, cube_indices, 4);
+    cube_fog.init();
+
+    vboArray = [grid, cube, sphere, cube_red, sphere_drag, cube_fog];
 
     var tick = function () {
         canvas.width = window.innerWidth * 1; //resize canvas
@@ -123,13 +128,14 @@ function drawAll([grid, cube, sphere, cube_red, sphere_drag, cube_fog]){
     cube_red.draw(g_modelMatrix, g_viewProjMatrix);
     g_modelMatrix = popMatrix();
 
-    //draw cube with fog
-    // pushMatrix(g_modelMatrix);
-    // g_modelMatrix.setScale(0.3,1.5,0.3);
-    // g_modelMatrix.rotate(currentAngle, 0,1,0);
-    // cube_fog.switchToMe();
-    // cube_fog.draw(g_modelMatrix, g_viewProjMatrix);
-    // g_modelMatrix = popMatrix();
+    // // draw cube with fog
+    pushMatrix(g_modelMatrix);
+    g_modelMatrix.setTranslate(2.5,1,0);
+    g_modelMatrix.scale(0.6,0.6,0.6);
+    g_modelMatrix.rotate(currentAngle, 0,1,0);
+    cube_fog.switchToMe();
+    cube_fog.draw(g_modelMatrix, g_viewProjMatrix);
+    g_modelMatrix = popMatrix();
 
     //blinn phong lighting sphere
     pushMatrix(g_modelMatrix);
