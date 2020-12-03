@@ -29,6 +29,7 @@ var vboArray;
 
 function main() {
     console.log("I'm in webglDrawing.js version 2 right now...");
+    controlScheme(); //get the slider responsive
     canvas = document.getElementById('webgl');
     gl = canvas.getContext("webgl", { preserveDrawingBuffer: true});
     if (!gl) {
@@ -50,37 +51,79 @@ function main() {
     };
 
     // Set the clear color and enable the depth test
-    gl.clearColor(0.3, 0.3, 0.3, 1.0);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
     // gl.enable(gl.BLEND);// Enable alpha blending
     // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Set blending function conflict with shadow...?
     g_modelMatrix = new Matrix4(); 
 
-
+    const shaderingScheme = {
+        0:[[diffuseVert,diffuseFrag,0],
+            [diffuseVert,diffuseFrag,0],
+            [pointLightVert,pointLightFrag,1],
+            [phongVert,phongFrag,2],
+            [draggablePhongVert,draggablePhongFrag,3],
+            [fogVert,fogFrag,4]],
+        1:[pointLightVert,pointLightFrag,1],
+        2:[phongVert,phongFrag,2],
+        3:[draggablePhongVert,draggablePhongFrag,3],
+        4:[fogVert,fogFrag,4]
+    };
     var grid = new VBO_genetic(diffuseVert, diffuseFrag, grid_vertices, grid_colors, grid_normals, null, 0);
     grid.init();
 
-    //diffuse - 0
-    var cube = new VBO_genetic(diffuseVert, diffuseFrag, cube_vertices, cube_colors, cube_normals, cube_indices, 0);
-    cube.init();
+    var currScheme = shaderingScheme[g_schemeOpt]; //TODO: needs to constantly listening for change...
+    console.log(currScheme)
+    // var plane = new VBO_genetic(diffuseVert, diffuseFrag, plane_vertices, plane_colors, plane_normals, plane_indices, 0);
+    // plane.init();
 
-    //pointLight - 1
-    var cube_red = new VBO_genetic(pointLightVert, pointLightFrag, cube_vertices, cube_colors_white, cube_normals, cube_indices, 1);
-    cube_red.init();
+    // //diffuse - 0
+    // var cube = new VBO_genetic(diffuseVert, diffuseFrag, cube_vertices, cube_colors, cube_normals, cube_indices, 0);
+    // cube.init();
 
-    //blinn phong shading - 2
-    var sphere = new VBO_genetic(phongVert, phongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 2);
-    sphere.init();
+    // //pointLight - 1
+    // var cube_red = new VBO_genetic(pointLightVert, pointLightFrag, cube_vertices, cube_colors_white, cube_normals, cube_indices, 1);
+    // cube_red.init();
 
-    //draggable light - 3
-    var sphere_drag = new VBO_genetic(draggablePhongVert, draggablePhongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 3);
-    sphere_drag.init();
+    // //blinn phong shading - 2
+    // var sphere = new VBO_genetic(phongVert, phongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 2);
+    // sphere.init();
 
-    //Fog - 4
-    var cube_fog = new VBO_genetic(fogVert, fogFrag, cube_vertices, cube_colors_multi, cube_normals, cube_indices, 4);
-    cube_fog.init();
+    // //draggable light - 3
+    // var sphere_drag = new VBO_genetic(draggablePhongVert, draggablePhongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 3);
+    // sphere_drag.init();
 
-    vboArray = [grid, cube, sphere, cube_red, sphere_drag, cube_fog];
+    // //Fog - 4
+    // var cube_fog = new VBO_genetic(fogVert, fogFrag, cube_vertices, cube_colors_multi, cube_normals, cube_indices, 4);
+    // cube_fog.init();
+
+
+    // ! Vvvvvvvvvvvvvvvvvvvvvvvvv
+        var plane = new VBO_genetic(draggablePhongVert, draggablePhongFrag, plane_vertices, plane_colors, plane_normals, plane_indices, 3);
+        plane.init();
+
+        //diffuse - 0
+        var cube = new VBO_genetic(draggablePhongVert, draggablePhongFrag, cube_vertices, cube_colors, cube_normals, cube_indices, 3);
+        cube.init();
+    
+        //pointLight - 1
+        var cube_red = new VBO_genetic(draggablePhongVert, draggablePhongFrag, cube_vertices, cube_colors_white, cube_normals, cube_indices, 3);
+        cube_red.init();
+    
+        //blinn phong shading - 2
+        var sphere = new VBO_genetic(draggablePhongVert, draggablePhongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 3);
+        sphere.init();
+    
+        //draggable light - 3
+        var sphere_drag = new VBO_genetic(draggablePhongVert, draggablePhongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 3);
+        sphere_drag.init();
+    
+        //Fog - 4
+        var cube_fog = new VBO_genetic(draggablePhongVert, draggablePhongFrag, cube_vertices, cube_colors_multi, cube_normals, cube_indices, 3);
+        cube_fog.init();
+    // ! ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    vboArray = [grid, cube, sphere, cube_red, sphere_drag, cube_fog, plane];
 
     var tick = function () {
         canvas.width = window.innerWidth * 1; //resize canvas
@@ -107,7 +150,7 @@ function main() {
 }
 
 
-function drawAll([grid, cube, sphere, cube_red, sphere_drag, cube_fog]){
+function drawAll([grid, cube, sphere, cube_red, sphere_drag, cube_fog, plane]){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    // Clear color and depth buffer
 
     //draw cube
@@ -151,20 +194,28 @@ function drawAll([grid, cube, sphere, cube_red, sphere_drag, cube_fog]){
         pushMatrix(g_modelMatrix);
         g_modelMatrix.setScale(1,1,1);
         g_modelMatrix.translate(0,3,0);
-        // g_modelMatrix.rotate(currentAngle, 0,1,0);
+        g_modelMatrix.rotate(currentAngle, 0,1,0);
         sphere_drag.switchToMe();
         sphere_drag.draw(g_modelMatrix, g_viewProjMatrix);
         g_modelMatrix = popMatrix();
     }
 
     //draw grid
-    if(!hideGrid){
+    if(hideGrid){
         pushMatrix(g_modelMatrix);
         g_viewProjMatrix.rotate(-90.0, 1, 0, 0);
         g_viewProjMatrix.translate(0.0, 0.0, -0.6);
         g_viewProjMatrix.scale(0.4, 0.4, 0.4);
         grid.switchToMe();
         grid.draw(g_modelMatrix, g_viewProjMatrix);
+        g_modelMatrix = popMatrix();
+    }else{
+        pushMatrix(g_modelMatrix);
+        g_viewProjMatrix.rotate(-90.0, 1, 0, 0);
+        g_viewProjMatrix.translate(0.0, 0.0, -0.6);
+        g_viewProjMatrix.scale(0.4, 0.4, 0.4);
+        plane.switchToMe();
+        plane.draw(g_modelMatrix, g_viewProjMatrix);
         g_modelMatrix = popMatrix();
     }
 

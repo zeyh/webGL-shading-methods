@@ -15,6 +15,33 @@ var g_LookX = 0.0, g_LookY = 0.0, g_LookZ = 0.0;
 var g_LookUp = 0.0;
 var g_speed = 1;
 
+var g_schemeOpt = 0;
+// control lighting scheme slider bar
+function controlScheme(){
+    var slider = document.getElementById("shadingScheme");
+    var optionText = document.querySelectorAll(".options");
+    var totalOptions = Array.from(Array(optionText.length).keys())
+    var underline = function(){
+        var currSelectionValue = slider.value;
+        g_schemeOpt = currSelectionValue; // ! update shading scheme
+        var currStyle = optionText[currSelectionValue].style;
+        currStyle.fontWeight = 700;
+        currStyle.setProperty("--isVisible", "visable")
+        currStyle.setProperty("--animationFcn", "scaleX(1)")
+        var restOptions = totalOptions.filter(num => num != currSelectionValue);
+        restOptions.forEach(element => {
+            optionText[element].style.fontWeight = 400;
+            optionText[element].style.setProperty("--isVisible", "hidden")
+            optionText[element].style.setProperty("--animationFcn", "scaleX(0)")
+        });
+    }
+    underline();
+
+    slider.oninput = function(){ //keep listening slider input change
+        underline();
+    }
+}
+
 // ===================================for dat-gui setup
 var params = { 
     left: -1.00,
@@ -177,9 +204,11 @@ function keyAD(ev) {
     if (ev.keyCode == 68) { // d
         g_EyeX += 0.1 * g_speed;
         g_LookX += 0.1 * g_speed;
+
     } else if (ev.keyCode == 65) { // a
         g_EyeX -= 0.1 * g_speed;
         g_LookX -= 0.1 * g_speed;
+
     } else { return; }
 }
 
@@ -188,12 +217,12 @@ function keyWS(ev) {
     if (ev.keyCode == 83) { // w moving forward
         g_EyeZ += 0.1 * g_speed;
         g_LookZ += 0.1 * g_speed;
-        if (g_fogDist[1] > g_fogDist[0]) g_fogDist[1] -= 1;
+        if (g_fogDist[1] > g_fogDist[0]) g_fogDist[1] -= 1; // ! change fog visibility
 
     } else if (ev.keyCode == 87) { // s moving backward
         g_EyeZ -= 0.1 * g_speed;
         g_LookZ -= 0.1 * g_speed;
-        g_fogDist[1]  += 1;
+        g_fogDist[1]  += 1; // ! change fog visibility
     } else { return; }
 }
 
@@ -224,13 +253,13 @@ function keyArrowRotateUp(ev) {//change x from -1 to 1
     } else { return; }
 }
 
+var g_matlSel = 9;
 function materialKeyPress(ev) {
         switch(ev.keyCode)
         {
             case 77:	// UPPER-case 'M' key:
             case 109:	// LOWER-case 'm' key:
                 g_matlSel = (g_matlSel +1)%MATL_DEFAULT;	// see materials_Ayerdi.js for list
-                g_matl0.setMatl(g_matlSel);					// set new material reflectances,
                 break;
             // case 83: // UPPER-case 's' key:
             //     matl0.K_shiny += 1.0;								// INCREASE shinyness, but with a
@@ -253,7 +282,6 @@ function clearDrag() {
     // Called when user presses 'Clear' button in our webpage
     g_xMdragTot = 0.0;
     g_yMdragTot = 0.0;
-    g_lamp0.I_pos.elements.set([6.0, 5.0, 5.0]);
 }
 
 function mouseWheel(en) {
@@ -299,10 +327,11 @@ function myMouseMove(ev) {
     //     g_lamp0.I_pos.elements[2] + 4.0*(y-g_yMclik) 	// Vert. drag: change world Z
     // ]);
 
-    g_lamp0PosY = g_lamp0.I_pos.elements[1] + 8.0*(x-g_xMclik);
-    g_lamp0PosZ = g_lamp0.I_pos.elements[2] + 8.0*(y-g_yMclik);
+    g_lamp0PosY = 8.0*(x-g_xMclik);
+    g_lamp0PosZ = 8.0*(y-g_yMclik);
     g_eyePosY = 8.0*(x-g_xMclik);
     g_eyePosZ = 8.0*(y-g_yMclik);
+
 
     // find how far we dragged the mouse:
     g_xMdragTot += (x - g_xMclik);

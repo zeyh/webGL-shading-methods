@@ -1,5 +1,39 @@
 /* the VBO details including vertices/color/normals/indices*/
 
+var plane_size = 50;
+var plane_vertices = new Float32Array([
+    plane_size/2, plane_size/2, 0,
+    -1*plane_size/2, plane_size/2, 0,
+    -1*plane_size/2, -1*plane_size/2, 0,
+    plane_size/2, -1*plane_size/2, 0,
+]);
+var plane_normals = new Float32Array([   
+    // 0, 1, 0,
+    // 0, 1, 0,
+    // 0, 1, 0,
+    // 0, 1, 0,
+
+    0, 0, 1,
+    0, 0, 1,
+    0, 0, 1,
+    0, 0, 1,
+
+    // 1, 0, 0,
+    // 1, 0, 0,
+    // 1, 0, 0,
+    // 1, 0, 0,
+]);
+var plane_colors = new Float32Array([   
+    0.3, 0.3, 0.3,
+    0.3, 0.3, 0.3,
+    0.3, 0.3, 0.3,
+    0.3, 0.3, 0.3,
+]);
+var plane_indices = new Uint8Array([
+    0,1,2,
+    0,2,3,
+]);
+
 var cube_vertices = new Float32Array([
     1.0, 1.0, 1.0,  -1.0, 1.0, 1.0,  -1.0,-1.0, 1.0,   1.0,-1.0, 1.0, // v0-v1-v2-v3 front
     1.0, 1.0, 1.0,   1.0,-1.0, 1.0,   1.0,-1.0,-1.0,   1.0, 1.0,-1.0, // v0-v3-v4-v5 right
@@ -89,8 +123,8 @@ function generate_sphereVBOinfo(sphere_div, colorFactor){
     for (j = 0; j <= SPHERE_DIV; j++) {
         for (i = 0; i <= SPHERE_DIV; i++) {
           colors.push(200/255*colorFactor);  // X
-          colors.push(200/255*colorFactor);       // Y
-          colors.push(200/255*colorFactor);  // Z
+          colors.push(80/255*colorFactor);       // Y
+          colors.push(100/255*colorFactor);  // Z
         }
       }
     // Generate indices

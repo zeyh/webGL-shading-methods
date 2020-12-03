@@ -138,7 +138,7 @@ VBObox0.prototype.init = function () {
         );
         return -1; // error exit.
     }
-        this.u_ModelMatLoc = gl.getUniformLocation(this.shaderLoc, "u_ModelMat0");
+    this.u_ModelMatLoc = gl.getUniformLocation(this.shaderLoc, "u_ModelMat0");
     if (!this.u_ModelMatLoc) {
         console.log(
             this.constructor.name +
@@ -463,21 +463,12 @@ VBObox1.prototype.init = function () {
         return;
     }
 
-    // Specify the purpose of our newly-created VBO on the GPU.  Your choices are:
-    //	== "gl.ARRAY_BUFFER" : the VBO holds vertices, each made of attributes
-    // (positions, colors, normals, etc), or
-    //	== "gl.ELEMENT_ARRAY_BUFFER" : the VBO holds indices only; integer values
-    // that each select one vertex from a vertex array stored in another VBO.
-    gl.bindBuffer(
+       gl.bindBuffer(
         gl.ARRAY_BUFFER, // GLenum 'target' for this GPU buffer
         this.vboLoc
     ); // the ID# the GPU uses for this buffer.
 
-    // Fill the GPU's newly-created VBO object with the vertex data we stored in
-    //  our 'vboContents' member (JavaScript Float32Array object).
-    //  (Recall gl.bufferData() will evoke GPU's memory allocation & management:
-    //	 use gl.bufferSubData() to modify VBO contents without changing VBO size)
-    gl.bufferData(
+        gl.bufferData(
         gl.ARRAY_BUFFER, // GLenum target(same as 'bindBuffer()')
         this.vboContents, // JavaScript Float32Array
         gl.STATIC_DRAW

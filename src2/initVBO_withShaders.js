@@ -1,5 +1,4 @@
 "use strict"
-var g_lamp0, g_matl0, g_matlSel; //for user event controls
 
 function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices, lightSpec) {
     // ! diffuse shading
@@ -56,9 +55,10 @@ function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices, light
 
     // ! (draggable spec == 3) as light source and material
     if(this.lightSpec == 3){
-        g_lamp0 = new LightsT();
-        g_matlSel= MATL_RED_PLASTIC;	
-        g_matl0 = new Material(g_matlSel);
+        this.g_lamp0 = new LightsT();
+        // this.g_matlSel= MATL_RED_PLASTIC;	
+        this.g_matl0 = new Material();
+        this.g_matl0.setMatl(g_matlSel);	
     }
 
     if(this.lightSpec == 4){
@@ -84,8 +84,15 @@ VBO_genetic.prototype.init = function(){
     gl.program = this.shaderLoc; 
 
     // ! init VBO
+    // * [Vertex] buffer
     this.vertexBuffer = initArrayBufferForLaterUse(gl, this.vertices, 3, gl.FLOAT);
-    this.normalBuffer = initArrayBufferForLaterUse(gl, this.normals, 3, gl.FLOAT);
+    if (!this.vertexBuffer) {
+        console.log(
+            this.constructor.name + ".init() failed to create VBO in GPU. Bye! [vertex buffer]"
+        );
+        return;
+    }
+    // * [Index] buffer
     if(this.indices.length > 0){
         this.indexBuffer = initElementArrayBufferForLaterUse(gl, this.indices, gl.UNSIGNED_BYTE);
         if (!this.indexBuffer) {
@@ -95,12 +102,7 @@ VBO_genetic.prototype.init = function(){
             return;
         }
     }
-    if (!this.vertexBuffer || !this.normalBuffer) {
-        console.log(
-            this.constructor.name + ".init() failed to create VBO in GPU. Bye!"
-        );
-        return;
-    }
+    // * [Color] buffer
     if(this.lightSpec != 2 && this.lightSpec != 3){ //assign color if not phong
         this.colorBuffer = initArrayBufferForLaterUse(gl, this.colors, 3, gl.FLOAT);
         this.a_ColrLoc = gl.getAttribLocation(this.shaderLoc, "a_Color");
@@ -111,22 +113,17 @@ VBO_genetic.prototype.init = function(){
             return;
         }
     }
-
-
-    // ! init attribute locations
-    this.a_PosLoc = gl.getAttribLocation(this.shaderLoc, "a_Position");
-    
-    this.u_ModelMatLoc = gl.getUniformLocation(this.shaderLoc, 'u_ModelMatrix'); //may not be used and null for simple diffuse lighting
-    this.u_MvpMatLoc = gl.getUniformLocation(this.shaderLoc, "u_MvpMatrix");
-    if (this.a_PosLoc < 0  || !this.u_MvpMatLoc) {
-        console.log(
-            this.constructor.name +
-                ".init() failed to get the GPU location of attributes"
-        );
-        return -1; // error exit.
-    }
-    // get normal
+    // * [Normal] Buffer
     if(this.lightSpec != 4){
+        this.normalBuffer = initArrayBufferForLaterUse(gl, this.normals, 3, gl.FLOAT);
+        if (!this.normalBuffer) {
+            console.log(
+                this.constructor.name + ".init() failed to create VBO in GPU. Bye! [normalBuffer]"
+            );
+            return;
+        }
+
+        // * [Normal] attribute locations
         this.a_NormLoc = gl.getAttribLocation(this.shaderLoc, "a_Normal");
         this.u_NormMatLoc = gl.getUniformLocation(this.shaderLoc, "u_NormalMatrix");
         if (this.a_NormLoc < 0 || !this.u_NormMatLoc) {
@@ -137,7 +134,20 @@ VBO_genetic.prototype.init = function(){
             return -1; // error exit.
         }
     }
-    // get eye
+    // ! init attribute locations
+    this.a_PosLoc = gl.getAttribLocation(this.shaderLoc, "a_Position");
+    this.u_ModelMatLoc = gl.getUniformLocation(this.shaderLoc, 'u_ModelMatrix'); //may not be used and null for simple diffuse lighting
+    this.u_MvpMatLoc = gl.getUniformLocation(this.shaderLoc, "u_MvpMatrix");
+    if (this.a_PosLoc < 0  || !this.u_MvpMatLoc) {
+        console.log(
+            this.constructor.name +
+                ".init() failed to get the GPU location of attributes"
+        );
+        return -1; // error exit.
+    }
+
+
+    // * [Eye] position world attribute
     if(this.lightSpec != 0 && this.lightSpec != 1){
         this.u_eyePosWorld = gl.getUniformLocation(this.shaderLoc, 'u_eyePosWorld');
         if (!this.u_eyePosWorld) {
@@ -145,7 +155,7 @@ VBO_genetic.prototype.init = function(){
             return;
         }
     }
-    // get light
+    // * [Light] color/position/ambient
     if(this.lightSpec == 1){ //PointLight
         if ( !this.u_ModelMatLoc ) {
             console.log(
@@ -161,7 +171,7 @@ VBO_genetic.prototype.init = function(){
             return;
         }
     }
-    //get lamp
+    // * [Lamp] position
     if(this.lightSpec == 2){ //Blinn Phong
         //light source✨
         this.u_Lamp0Pos  = gl.getUniformLocation(this.shaderLoc, 	'u_Lamp0Pos');
@@ -182,29 +192,29 @@ VBO_genetic.prototype.init = function(){
             return;
         }
     }
-    // get both lamp and material
+    // * struct [Lamp] and [Material]
     if(this.lightSpec == 3) { //draggable phong
         //reference in struct instead
-        g_lamp0.u_pos  = gl.getUniformLocation(this.shaderLoc, 	'u_LampSet[0].pos');
-        g_lamp0.u_ambi  = gl.getUniformLocation(this.shaderLoc, 'u_LampSet[0].ambi');
-        g_lamp0.u_diff = gl.getUniformLocation(this.shaderLoc, 	'u_LampSet[0].diff');
-        g_lamp0.u_spec = gl.getUniformLocation(this.shaderLoc,	'u_LampSet[0].spec');
-        if( !g_lamp0.u_pos || !g_lamp0.u_ambi ||!g_lamp0.u_diff ||!g_lamp0.u_spec) {
+        this.g_lamp0.u_pos  = gl.getUniformLocation(this.shaderLoc, 	'u_LampSet[0].pos');
+        this.g_lamp0.u_ambi  = gl.getUniformLocation(this.shaderLoc, 'u_LampSet[0].ambi');
+        this.g_lamp0.u_diff = gl.getUniformLocation(this.shaderLoc, 	'u_LampSet[0].diff');
+        this.g_lamp0.u_spec = gl.getUniformLocation(this.shaderLoc,	'u_LampSet[0].spec');
+        if( !this.g_lamp0.u_pos || !this.g_lamp0.u_ambi ||!this.g_lamp0.u_diff ||!this.g_lamp0.u_spec) {
             console.log('Failed to get the Lamp0 storage locations');
             return;
         }
 
-        g_matl0.uLoc_Ke = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].emit');
-        g_matl0.uLoc_Ka = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].ambi');
-        g_matl0.uLoc_Kd = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].diff');
-        g_matl0.uLoc_Ks = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].spec');
-        g_matl0.uLoc_Kshiny = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].shiny');
-        if(!g_matl0.uLoc_Ke || !g_matl0.uLoc_Ka || !g_matl0.uLoc_Kd  ||!g_matl0.uLoc_Ks || !g_matl0.uLoc_Kshiny) {
+        this.g_matl0.uLoc_Ke = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].emit');
+        this.g_matl0.uLoc_Ka = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].ambi');
+        this.g_matl0.uLoc_Kd = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].diff');
+        this.g_matl0.uLoc_Ks = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].spec');
+        this.g_matl0.uLoc_Kshiny = gl.getUniformLocation(this.shaderLoc, 'u_MatlSet[0].shiny');
+        if(!this.g_matl0.uLoc_Ke || !this.g_matl0.uLoc_Ka || !this.g_matl0.uLoc_Kd  ||!this.g_matl0.uLoc_Ks || !this.g_matl0.uLoc_Kshiny) {
             console.log('Failed to get the Phong Reflectance storage locations');
             return;
         }
     }
-
+    // * [Fog] color/distance
     if(this.lightSpec == 4){
         this.u_FogColor = gl.getUniformLocation(gl.program, 'u_FogColor');
         this.u_FogDist = gl.getUniformLocation(gl.program, 'u_FogDist');
@@ -229,10 +239,10 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     }
     if(this.lightSpec == 1){
-        // Set the light color (white)
+        // Set the light color (pink)
         gl.uniform3f(this.u_LightColor, 1.0, 0.5, 0.5);
         // Set the light direction (in the world coordinate)
-        gl.uniform3f(this.u_LightPosition, -3.5, 1.0, 3.5);
+        gl.uniform3f(this.u_LightPosition, 12.5, 50.0, 51.5);
         // Set the ambient light
         gl.uniform3f(this.u_AmbientLight, 0.5, 0.5, 0.5);
     }
@@ -254,45 +264,43 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         
     }
     if(this.lightSpec == 3){
+        this.g_matl0.setMatl(g_matlSel);
         var	eyePosWorld = new Float32Array(3);	// x,y,z in world coords
-        // if(g_eyePosY != undefined && g_eyePosZ != undefined){ //TODO: hightlight's not going with shadow change...
-        //     // eyePosWorld.set([6.0, g_eyePosY, g_eyePosZ]);
-        // }else{
-        //     eyePosWorld.set([6.0, 0.0, 0.0]);
-        // }
         eyePosWorld.set([6.0, 2.0, 5.0]);
         gl.uniform3fv(this.u_eyePosWorld, eyePosWorld);
 
         // Init World-coord. position & colors of first light source in global vars;
         if(g_lamp0PosY != undefined && g_lamp0PosZ != undefined){ //TODO: somehow unable to change directly in mouseMove(ev)
-            g_lamp0.I_pos.elements.set( [6.0, g_lamp0PosY, g_lamp0PosZ]);
-        }else{
-            g_lamp0.I_pos.elements.set( [6.0, 5.0, 5.0]);
-        }
-        g_lamp0.I_ambi.elements.set([0.4, 0.4, 0.4]);
-        g_lamp0.I_diff.elements.set([1.0, 1.0, 1.0]);
-        g_lamp0.I_spec.elements.set([1.0, 1.0, 1.0]);
+            this.g_lamp0.I_pos.elements[1] += g_lamp0PosY;
+            this.g_lamp0.I_pos.elements[2] += g_lamp0PosZ;
 
-        gl.uniform3fv(g_lamp0.u_pos,  g_lamp0.I_pos.elements.slice(0,3));
-        gl.uniform3fv(g_lamp0.u_ambi, g_lamp0.I_ambi.elements);		// ambient
-        gl.uniform3fv(g_lamp0.u_diff, g_lamp0.I_diff.elements);		// diffuse
-        gl.uniform3fv(g_lamp0.u_spec, g_lamp0.I_spec.elements);		// Specular
+        }else{
+            this.g_lamp0.I_pos.elements.set( [6.0, 5.0, 5.0]);
+        }
+        this.g_lamp0.I_ambi.elements.set([0.4, 0.4, 0.4]);
+        this.g_lamp0.I_diff.elements.set([1.0, 1.0, 1.0]);
+        this.g_lamp0.I_spec.elements.set([1.0, 1.0, 1.0]);
+
+        gl.uniform3fv(this.g_lamp0.u_pos,  this.g_lamp0.I_pos.elements.slice(0,3));
+        gl.uniform3fv(this.g_lamp0.u_ambi, this.g_lamp0.I_ambi.elements);		// ambient
+        gl.uniform3fv(this.g_lamp0.u_diff, this.g_lamp0.I_diff.elements);		// diffuse
+        gl.uniform3fv(this.g_lamp0.u_spec, this.g_lamp0.I_spec.elements);		// Specular
       
-        gl.uniform3fv(g_matl0.uLoc_Ke, g_matl0.K_emit.slice(0,3));				// Ke emissive
-        gl.uniform3fv(g_matl0.uLoc_Ka, g_matl0.K_ambi.slice(0,3));				// Ka ambient
-        gl.uniform3fv(g_matl0.uLoc_Kd, g_matl0.K_diff.slice(0,3));				// Kd	diffuse
-        gl.uniform3fv(g_matl0.uLoc_Ks, g_matl0.K_spec.slice(0,3));				// Ks specular
-        gl.uniform1i(g_matl0.uLoc_Kshiny, parseInt(g_matl0.K_shiny, 10)); 
+        gl.uniform3fv(this.g_matl0.uLoc_Ke, this.g_matl0.K_emit.slice(0,3));				// Ke emissive
+        gl.uniform3fv(this.g_matl0.uLoc_Ka, this.g_matl0.K_ambi.slice(0,3));				// Ka ambient
+        gl.uniform3fv(this.g_matl0.uLoc_Kd, this.g_matl0.K_diff.slice(0,3));				// Kd	diffuse
+        gl.uniform3fv(this.g_matl0.uLoc_Ks, this.g_matl0.K_spec.slice(0,3));				// Ks specular
+        gl.uniform1i(this.g_matl0.uLoc_Kshiny, parseInt(this.g_matl0.K_shiny, 10)); 
     }
 
-    if(this.lightSpec == 4){
-        var fogColor = new Float32Array([0.3, 0.3, 0.3]);
+    if(this.lightSpec == 4){ 
+        var fogColor = new Float32Array([0.0, 0.0, 0.0]);
         // Distance of fog [where fog starts, where fog completely covers object]
         // Position of eye point (world coordinates)
         var eye = new Float32Array([25, 65, 35, 1.0]);
         gl.uniform3fv(this.u_FogColor, fogColor); // Colors
         gl.uniform2fv(this.u_FogDist, g_fogDist);   // Starting point and end point
-        gl.uniform4fv(this.u_eyePosWorld, eye);           // Eye point
+        gl.uniform4fv(this.u_eyePosWorld, eye);     // Eye point
     }
 
 }
@@ -331,13 +339,6 @@ VBO_genetic.prototype.draw = function (g_modelMatrix, g_viewProjMatrix) { //fina
         gl.uniform4f(this.u_eyePosWorld, 2-g_cloudAngle,4,5, 1);
     }
 
-    if(this.lightSpec == 3){
-        // gl.uniform3fv(this.u_eyePosWorld, [6.0+g_xMclik, 0.0, 0.0]);
-        // console.log(g_lamp0PosY, g_lamp0PosZ);
-        if(g_lamp0PosY != undefined && g_lamp0PosZ != undefined){
-            g_lamp0.I_pos.elements.set( [6.0, g_lamp0PosY, g_lamp0PosZ]);
-        }
-    }
 
     this.ModelMat.set(g_modelMatrix);
     gl.uniformMatrix4fv(this.u_ModelMatLoc, false, this.ModelMat.elements);
