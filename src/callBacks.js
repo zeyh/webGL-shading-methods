@@ -24,6 +24,7 @@ function controlScheme(){
     var underline = function(){
         var currSelectionValue = slider.value;
         g_schemeOpt = currSelectionValue; // ! update shading scheme
+        initVBOs(shaderingScheme[g_schemeOpt]); // ! update all VBO associated w/ the shading scheme
         var currStyle = optionText[currSelectionValue].style;
         currStyle.fontWeight = 700;
         currStyle.setProperty("--isVisible", "visable")

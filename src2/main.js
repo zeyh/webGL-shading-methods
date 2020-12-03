@@ -26,10 +26,30 @@ var gl;
 var g_viewProjMatrix;
 var g_modelMatrix;
 var vboArray;
+var shaderingScheme;
+var vboArray;
 
+function initVBOs(currScheme){
+    var grid = new VBO_genetic(diffuseVert, diffuseFrag, grid_vertices, grid_colors, grid_normals, null, 0);
+    grid.init();
+    var plane = new VBO_genetic(currScheme[0][0], currScheme[0][1], plane_vertices, plane_colors, plane_normals, plane_indices, currScheme[0][2]);
+    plane.init();
+    var cube = new VBO_genetic(currScheme[1][0], currScheme[1][1], cube_vertices, cube_colors, cube_normals, cube_indices, currScheme[1][2]);
+    cube.init();
+    var cube_red = new VBO_genetic(currScheme[2][0], currScheme[2][1], cube_vertices, cube_colors_white, cube_normals, cube_indices, currScheme[2][2]);
+    cube_red.init();
+    var sphere = new VBO_genetic(currScheme[3][0], currScheme[3][1], sphere_vertices, sphere_colors, sphere_normals, sphere_indices, currScheme[3][2]);
+    sphere.init();
+    var sphere_drag = new VBO_genetic(currScheme[4][0], currScheme[4][1], sphere_vertices, sphere_colors, sphere_normals, sphere_indices, currScheme[4][2]);
+    sphere_drag.init();
+    var cube_fog = new VBO_genetic(currScheme[5][0], currScheme[5][1], cube_vertices, cube_colors_multi, cube_normals, cube_indices, currScheme[5][2]);
+    cube_fog.init();
+
+    vboArray = [grid, cube, sphere, cube_red, sphere_drag, cube_fog, plane];
+}
 function main() {
     console.log("I'm in webglDrawing.js version 2 right now...");
-    controlScheme(); //get the slider responsive
+    
     canvas = document.getElementById('webgl');
     gl = canvas.getContext("webgl", { preserveDrawingBuffer: true});
     if (!gl) {
@@ -57,74 +77,54 @@ function main() {
     // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Set blending function conflict with shadow...?
     g_modelMatrix = new Matrix4(); 
 
-    const shaderingScheme = {
-        0:[[diffuseVert,diffuseFrag,0],
+    shaderingScheme = {
+        0:[
+            [diffuseVert,diffuseFrag,0],
             [diffuseVert,diffuseFrag,0],
             [pointLightVert,pointLightFrag,1],
             [phongVert,phongFrag,2],
             [draggablePhongVert,draggablePhongFrag,3],
-            [fogVert,fogFrag,4]],
-        1:[pointLightVert,pointLightFrag,1],
-        2:[phongVert,phongFrag,2],
-        3:[draggablePhongVert,draggablePhongFrag,3],
-        4:[fogVert,fogFrag,4]
+            [fogVert,fogFrag,4]
+        ],
+        1:[
+            [pointLightVert,pointLightFrag,1], //maybe a better way to structure this...
+            [pointLightVert,pointLightFrag,1],
+            [pointLightVert,pointLightFrag,1],
+            [pointLightVert,pointLightFrag,1],
+            [pointLightVert,pointLightFrag,1],
+            [pointLightVert,pointLightFrag,1]
+        ],
+        2:[
+            [phongVert,phongFrag,2],
+            [phongVert,phongFrag,2],
+            [phongVert,phongFrag,2],
+            [phongVert,phongFrag,2],
+            [phongVert,phongFrag,2],
+            [phongVert,phongFrag,2],
+        ],
+        3:[
+            [draggablePhongVert,draggablePhongFrag,3],
+            [draggablePhongVert,draggablePhongFrag,3],
+            [draggablePhongVert,draggablePhongFrag,3],
+            [draggablePhongVert,draggablePhongFrag,3],
+            [draggablePhongVert,draggablePhongFrag,3],
+            [draggablePhongVert,draggablePhongFrag,3],
+        ],
+        4:[
+            [fogVert,fogFrag,4],
+            [fogVert,fogFrag,4],
+            [fogVert,fogFrag,4],
+            [fogVert,fogFrag,4],
+            [fogVert,fogFrag,4],
+            [fogVert,fogFrag,4],
+        ],
     };
-    var grid = new VBO_genetic(diffuseVert, diffuseFrag, grid_vertices, grid_colors, grid_normals, null, 0);
-    grid.init();
-
-    var currScheme = shaderingScheme[g_schemeOpt]; //TODO: needs to constantly listening for change...
+    // ! scheme selection
+    var currScheme = shaderingScheme[g_schemeOpt]; 
     console.log(currScheme)
-    // var plane = new VBO_genetic(diffuseVert, diffuseFrag, plane_vertices, plane_colors, plane_normals, plane_indices, 0);
-    // plane.init();
+    controlScheme(); //get the slider responsive
 
-    // //diffuse - 0
-    // var cube = new VBO_genetic(diffuseVert, diffuseFrag, cube_vertices, cube_colors, cube_normals, cube_indices, 0);
-    // cube.init();
-
-    // //pointLight - 1
-    // var cube_red = new VBO_genetic(pointLightVert, pointLightFrag, cube_vertices, cube_colors_white, cube_normals, cube_indices, 1);
-    // cube_red.init();
-
-    // //blinn phong shading - 2
-    // var sphere = new VBO_genetic(phongVert, phongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 2);
-    // sphere.init();
-
-    // //draggable light - 3
-    // var sphere_drag = new VBO_genetic(draggablePhongVert, draggablePhongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 3);
-    // sphere_drag.init();
-
-    // //Fog - 4
-    // var cube_fog = new VBO_genetic(fogVert, fogFrag, cube_vertices, cube_colors_multi, cube_normals, cube_indices, 4);
-    // cube_fog.init();
-
-
-    // ! Vvvvvvvvvvvvvvvvvvvvvvvvv
-        var plane = new VBO_genetic(draggablePhongVert, draggablePhongFrag, plane_vertices, plane_colors, plane_normals, plane_indices, 3);
-        plane.init();
-
-        //diffuse - 0
-        var cube = new VBO_genetic(draggablePhongVert, draggablePhongFrag, cube_vertices, cube_colors, cube_normals, cube_indices, 3);
-        cube.init();
     
-        //pointLight - 1
-        var cube_red = new VBO_genetic(draggablePhongVert, draggablePhongFrag, cube_vertices, cube_colors_white, cube_normals, cube_indices, 3);
-        cube_red.init();
-    
-        //blinn phong shading - 2
-        var sphere = new VBO_genetic(draggablePhongVert, draggablePhongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 3);
-        sphere.init();
-    
-        //draggable light - 3
-        var sphere_drag = new VBO_genetic(draggablePhongVert, draggablePhongFrag, sphere_vertices, sphere_colors, sphere_normals, sphere_indices, 3);
-        sphere_drag.init();
-    
-        //Fog - 4
-        var cube_fog = new VBO_genetic(draggablePhongVert, draggablePhongFrag, cube_vertices, cube_colors_multi, cube_normals, cube_indices, 3);
-        cube_fog.init();
-    // ! ^^^^^^^^^^^^^^^^^^^^^^^^^
-    
-    vboArray = [grid, cube, sphere, cube_red, sphere_drag, cube_fog, plane];
-
     var tick = function () {
         canvas.width = window.innerWidth * 1; //resize canvas
         canvas.height = window.innerHeight * 7 / 10;
