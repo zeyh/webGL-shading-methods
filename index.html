@@ -40,8 +40,8 @@
                 -webkit-transform: rotate(45deg);
             }
             .buttons{
-                margin-left:5%;    
-                margin-top:10px;   
+                margin-left:7.5%;    
+                margin-top:0px;   
             }
             button { 
                  padding:30px;
@@ -153,12 +153,14 @@
                 <span class="options" id="opt1"> Point Light Phong </span><span>|</span>
                 <span class="options" id="opt2"> Rotating Blinn Phong </span><span>|</span>
                 <span class="options" id="opt3"> Mouse Draggable Blinn Phong </span><span>|</span>
-                <span class="options" id="opt4"> Foggy </span>
+                <span class="options" id="opt4"> Foggy </span> <span>|</span>
+                <span class="options" id="opt5"> Gouraud </span>
+
             </div>
         </div>
         <div class="buttons">
             <button onclick="gridDisplay()">Show Grid/Plane</button>
-            <button onclick="sphereDisplay()">Show Sphere/Hide Sphere</button>
+            <button onclick="sphereDisplay()">Show Sphere/Hide Sphere</button >
         </div>
 
 
@@ -183,6 +185,7 @@
         <script src="src2/main.js"></script>
         <script src="src2/VBOinfo.js"></script>
         <script src="src2/shaderInfo.js"></script>
+        <script src="src2/draw.js"></script>
 
         <script src="mat/materials_Ayerdi.js"></script>
         <script src="mat/lights-JT.js"></script>

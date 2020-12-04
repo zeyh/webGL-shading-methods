@@ -5,7 +5,8 @@ var g_angle01 = 0.0;
 var currentAngle = 0.0;
 var g_viewScale = 1;
 var g_cloudAngle = 1, g_cloudAngleRate = 1.8,  g_cloudAngleMin = 0,  g_cloudAngleMax = 6;
-var g_jointAngle = 0, g_jointAngleRate = 1.0,  g_jointAngleMin = -135,  g_jointAngleMax = 135;  
+var g_jointAngle = 0, g_jointAngleRate = 0.6,  g_jointAngleMin = -2,  g_jointAngleMax = 2;  
+var g_jointAngle2 = 0, g_jointAngleRate2 = 1.2,  g_jointAngleMin2 = -20,  g_jointAngleMax2 = 20;  
 var g_time = 0, g_endSHOtime = 100, g_SHOgap = 0.1, g_damping1 = 20;
 
 var g_matrixStack = []; // Array for storing a matrix
@@ -63,6 +64,24 @@ function animateJoints() {
       newAngle = g_jointAngle - (g_jointAngleRate * elapsed) / 360.0;
     } 
     if(newAngle < g_jointAngleMin){ isForward2 = true;}
+    return newAngle;
+}
+
+var g_last5J = Date.now();
+var isForward3 = true;
+function animateJoints2() {
+    var now = Date.now();  // Calculate the elapsed time
+    var elapsed = now - g_last5J;
+    g_last5J = now; 
+    var newAngle = 0;
+    if(isForward3){
+      newAngle = g_jointAngle2 + (g_jointAngleRate2 * elapsed) / 360.0;
+    }
+    if(newAngle > g_jointAngleMax2){ isForward3 = false;}
+    if(!isForward3){
+      newAngle = g_jointAngle2 - (g_jointAngleRate2 * elapsed) / 360.0;
+    } 
+    if(newAngle < g_jointAngleMin2){ isForward3 = true;}
     return newAngle;
 }
 

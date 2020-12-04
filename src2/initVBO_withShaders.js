@@ -1,6 +1,6 @@
 "use strict"
 
-function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices, lightSpec) {
+function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices, lightSpec, materialCode) {
     // ! diffuse shading
     this.VERT_SRC = vertSrc;
     this.FRAG_SRC = fragSrc;
@@ -55,10 +55,16 @@ function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices, light
 
     // ! (draggable spec == 3) as light source and material
     if(this.lightSpec == 3){
+        this.materialCode = materialCode;
         this.g_lamp0 = new LightsT();
         // this.g_matlSel= MATL_RED_PLASTIC;	
         this.g_matl0 = new Material();
-        this.g_matl0.setMatl(g_matlSel);	
+        if(materialCode != null){
+            console.log(materialCode,"!!")
+            this.g_matl0.setMatl(materialCode);	
+        }else{
+            this.g_matl0.setMatl(g_matlSel);	
+        }
     }
 
     if(this.lightSpec == 4){
@@ -264,7 +270,9 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         
     }
     if(this.lightSpec == 3){
-        this.g_matl0.setMatl(g_matlSel);
+        if(this.materialCode == undefined){
+            this.g_matl0.setMatl(g_matlSel);
+        }
         var	eyePosWorld = new Float32Array(3);	// x,y,z in world coords
         eyePosWorld.set([6.0, 2.0, 5.0]);
         gl.uniform3fv(this.u_eyePosWorld, eyePosWorld);

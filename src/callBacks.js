@@ -260,7 +260,8 @@ function materialKeyPress(ev) {
         {
             case 77:	// UPPER-case 'M' key:
             case 109:	// LOWER-case 'm' key:
-                g_matlSel = (g_matlSel +1)%MATL_DEFAULT;	// see materials_Ayerdi.js for list
+                g_matlSel = (g_matlSel +1)%MATL_DEFAULT;	
+                console.log(g_matlSel)// see materials_Ayerdi.js for list
                 break;
             // case 83: // UPPER-case 's' key:
             //     matl0.K_shiny += 1.0;								// INCREASE shinyness, but with a
