@@ -12,6 +12,7 @@
                 width: 100%;
                 height: 100%;
                 margin: 0;
+                overflow: hidden; /* Hide scrollbars */
             }
             .arrow {
                 border: solid black;
@@ -40,32 +41,37 @@
                 -webkit-transform: rotate(45deg);
             }
             .buttons{
-                margin-left:7.5%;    
-                margin-top:0px;   
+                margin-left:5%;    
+                margin-top:10px;   
             }
             button { 
                  padding:30px;
                  border:1px solid black;
-                border-radius: 5px;
+                 border-radius: 5px;
                  font-family: 'Crimson Text', serif;
                  text-align:center;
-                 margin-right:10px;
                  background-color: white;
+                 opacity: 0.6;
                 cursor: pointer; /* Cursor on hover */
 
             }
             button:hover{
-                background: #e8eaed;
+                opacity: 0.8;
                 transition: 0.3s;
-                text-shadow: 3px 3px 3px #000;
+                text-shadow: 3px 3px 3px white;
             }
-
+            .info{
+                background: url('mat/bg2.jpg');
+                margin:0;
+                height: 30%;
+            }
             /*slider https://www.w3schools.com/howto/howto_js_rangeslider.asp  */
             .slidecontainer {
                 width: 90%; /* Width of the outside container */
                 margin-left: 5%;
                 margin-right: 5%;
-                margin-top: 2%;
+                padding-top: 2%;
+                
             }
 
             /* The slider itself */
@@ -77,7 +83,7 @@
                 border-radius: 5px;  
                 background: #d3d3d3; /* Grey background */
                 outline: none; /* Remove outline */
-                opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+                opacity: 0.4; /* Set transparency (for mouse-over effects on hover) */
                 -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
                 transition: opacity 0.2s;
             }
@@ -94,7 +100,7 @@
                 width: 25px; /* Set a specific slider handle width */
                 height: 25px;
                 border-radius: 50%; 
-                background: #424242; /* Green background */
+                background: #ffffff; /* Green background */
                 cursor: pointer; /* Cursor on hover */
             }
 
@@ -102,8 +108,12 @@
                 width: 25px; /* Set a specific slider handle width */
                 height: 25px;
                 border-radius: 50%;
-                background: #4caf50; /* Green background */
+                background: #424242; /* Green background */
                 cursor: pointer; /* Cursor on hover */
+            }
+            .optionsDiv{
+                color: #ffffff;
+                opacity:0.9;
             }
             .options{
                 maxWidth: 30px;
@@ -124,7 +134,7 @@
                 left: 0;
                 width: 100%;
                 height: 2px;
-                background-color: #000;
+                background-color: #ffffff;
                 transform: var(--animationFcn);
                 transition: all 0.3s ease-in-out 0s;
             }
@@ -133,9 +143,10 @@
     </head>
 
     <body onload="main()">
-        <canvas id="webgl" width="400" height="400">
+        <canvas id="webgl" style="background: url('mat/bg.jpg')" width="800" height="400">
             Please use a browser that supports "canvas"
         </canvas>
+        <div class="info" style="background: url('mat/bg2.jpg')">
         <div class="slidecontainer">
             <div>
             <input
@@ -152,9 +163,9 @@
                 <span class="options" id="opt0"> Default </span><span>|</span>
                 <span class="options" id="opt1"> Point Light Phong </span><span>|</span>
                 <span class="options" id="opt2"> Rotating Blinn Phong </span><span>|</span>
-                <span class="options" id="opt3"> Mouse Draggable Blinn Phong </span><span>|</span>
-                <span class="options" id="opt4"> Foggy </span> <span>|</span>
-                <span class="options" id="opt5"> Gouraud </span>
+                <span class="options" id="opt4"> Gouraud </span> <span>|</span>
+                <span class="options" id="opt5"> Foggy </span> <span>|</span>
+                
 
             </div>
         </div>
@@ -162,7 +173,7 @@
             <button onclick="gridDisplay()">Show Grid/Plane</button>
             <button onclick="sphereDisplay()">Show Sphere/Hide Sphere</button >
         </div>
-
+        </div>
 
         <script src="lib/webgl-utils.js"></script>
         <script src="lib/webgl-debug.js"></script>

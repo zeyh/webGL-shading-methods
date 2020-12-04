@@ -1,6 +1,6 @@
 /* the VBO details including vertices/color/normals/indices*/
 
-var plane_size = 50;
+var plane_size = 40;
 var plane_vertices = new Float32Array([
     plane_size/2, plane_size/2, 0,
     -1*plane_size/2, plane_size/2, 0,

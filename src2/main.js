@@ -8,14 +8,15 @@
   Done: Blinn Phong shading
   Done: Large, Slowly-spinning Sphere [move at (0,0,0)]
   Done: Assign different looking phong material to 3+ object
+  Done: Rearrange Objects + 3 solid jointed obj 
 * Almost: user-selected distance dependencies??? does Foggy effect count?
-* Almost: Add on screen instructions for each lighting scheme
+* Almost: Add on screen instructions for each lighting scheme/ available keyboard/mouse interation options
 
-? Doing: Rearrange Objects + 3 solid jointed obj 🤬
-! TODO: lighting change with object movement...😠
+! TODO: lighting change with object movement...😠 .. something messing with modelMatrix...
 ! TODO: non-directional light source (headlight) on/off
-! TODO: geometric shape distortions in shaders???
 ! TODO: Simple Texture Maps emmisive
+! TODO: geometric shape distortions in shaders???
+
 
 ! TODO: lighting/shading methods*4👇
 ! 70%: Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
@@ -83,7 +84,8 @@ function main() {
     };
 
     // Set the clear color and enable the depth test
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    // gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.enable(gl.DEPTH_TEST);
     // gl.enable(gl.BLEND);// Enable alpha blending
     // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Set blending function conflict with shadow...?
@@ -143,7 +145,7 @@ function main() {
         g_cloudAngle = animateCloud();
         g_jointAngle = animateJoints();
         g_jointAngle2 = animateJoints2();
-        
+
         // ! setting view control
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);    // Clear color and depth buffer
         gl.viewport(0, 0, canvas.width, canvas.height);
