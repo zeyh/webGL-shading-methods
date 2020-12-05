@@ -20,20 +20,26 @@ var g_schemeOpt = 0;
 function controlScheme(){
     var slider = document.getElementById("shadingScheme");
     var optionText = document.querySelectorAll(".options");
-    var totalOptions = Array.from(Array(optionText.length).keys())
+    let instructions = document.querySelectorAll(".dynamicInstruction");
+    var totalOptions = Array.from(Array(optionText.length).keys());
     var underline = function(){
         var currSelectionValue = slider.value;
         g_schemeOpt = currSelectionValue; // ! update shading scheme
         initVBOs(shaderingScheme[g_schemeOpt]); // ! update all VBO associated w/ the shading scheme
         var currStyle = optionText[currSelectionValue].style;
+        var currInstructionStyle = instructions[currSelectionValue].style;
         currStyle.fontWeight = 700;
-        currStyle.setProperty("--isVisible", "visable")
-        currStyle.setProperty("--animationFcn", "scaleX(1)")
+        currStyle.setProperty("--isVisible", "visable");
+        currStyle.setProperty("--animationFcn", "scaleX(1)");
+        currInstructionStyle.setProperty("--animationFcn1", "scaleX(1)");
+        currInstructionStyle.setProperty("--isVisible1", "visable");
         var restOptions = totalOptions.filter(num => num != currSelectionValue);
         restOptions.forEach(element => {
             optionText[element].style.fontWeight = 400;
             optionText[element].style.setProperty("--isVisible", "hidden")
             optionText[element].style.setProperty("--animationFcn", "scaleX(0)")
+            instructions[element].style.setProperty("--animationFcn1", "scaleX(0)");
+            instructions[element].style.setProperty("--isVisible1", "hidden");
         });
     }
     underline();
@@ -153,9 +159,10 @@ function gridDisplay(){
     if(hideGrid){
         //start
         hideGrid = false;
-
+        document.querySelector('#showGrid').textContent = 'Show Plane';
     }else{
         hideGrid = true;
+        document.querySelector('#showGrid').textContent = 'Show Grid';
     }
 }
 var hideSphere = false;
@@ -163,9 +170,10 @@ function sphereDisplay(){
     if(hideSphere){
         //start
         hideSphere = false;
-
+        document.querySelector('#showSphere').textContent = 'Show Sphere';
     }else{
         hideSphere = true;
+        document.querySelector('#showSphere').textContent = 'Hide Sphere';
     }
 }
 

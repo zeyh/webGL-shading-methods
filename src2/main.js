@@ -12,13 +12,15 @@
 * Almost: user-selected distance dependencies??? does Foggy effect count?
 * Almost: Add on screen instructions for each lighting scheme/ available keyboard/mouse interation options
 
-! TODO: lighting change with object movement...😠 .. something messing with modelMatrix...
-! TODO: non-directional light source (headlight) on/off
-! TODO: Simple Texture Maps emmisive
-! TODO: geometric shape distortions in shaders???
 
+! TODO: 0. lighting change with object movement...😠 .. something messing with modelMatrix...
+! TODO: 1. Gouraud Shading
+! TODO: 2. combine to get the 4 methods👇
+! TODO: 3. non-directional light source (headlight) on/off
+! TODO: 4. Simple Texture Maps emmisive
+! TODO: 5. geometric shape distortions in shaders???
 
-! TODO: lighting/shading methods*4👇
+! lighting/shading methods*4👇
 ! 70%: Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
 ! 70%: Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
 ! 30%: Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)

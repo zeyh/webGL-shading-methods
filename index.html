@@ -1,204 +1,292 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title>Project C</title>
-        <link rel="preconnect" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&family=Crimson+Text:wght@400;700&display=swap" rel="stylesheet">
-        <script src="https://unpkg.com/mathjs@7.5.1/dist/math.min.js"></script>
-        <style>
-            html,
-            body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                overflow: hidden; /* Hide scrollbars */
-            }
-            .arrow {
-                border: solid black;
-                border-width: 0 3px 3px 0;
-                display: inline-block;
-                padding: 3px;
-            }
 
-            .right {
-                transform: rotate(-45deg);
-                -webkit-transform: rotate(-45deg);
-            }
+<head>
+    <meta charset="utf-8" />
+    <title>Project C</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&family=Crimson+Text:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <script src="https://unpkg.com/mathjs@7.5.1/dist/math.min.js"></script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            /* Hide scrollbars */
+        }
 
-            .left {
-                transform: rotate(135deg);
-                -webkit-transform: rotate(135deg);
-            }
+        .arrow {
+            border: solid black;
+            border-width: 0 3px 3px 0;
+            display: inline-block;
+            padding: 3px;
+        }
 
-            .up {
-                transform: rotate(-135deg);
-                -webkit-transform: rotate(-135deg);
-            }
+        .right {
+            transform: rotate(-45deg);
+            -webkit-transform: rotate(-45deg);
+        }
 
-            .down {
-                transform: rotate(45deg);
-                -webkit-transform: rotate(45deg);
-            }
-            .buttons{
-                margin-left:5%;    
-                margin-top:10px;   
-            }
-            button { 
-                 padding:30px;
-                 border:1px solid black;
-                 border-radius: 5px;
-                 font-family: 'Crimson Text', serif;
-                 text-align:center;
-                 background-color: white;
-                 opacity: 0.6;
-                cursor: pointer; /* Cursor on hover */
+        .left {
+            transform: rotate(135deg);
+            -webkit-transform: rotate(135deg);
+        }
 
-            }
-            button:hover{
-                opacity: 0.8;
-                transition: 0.3s;
-                text-shadow: 3px 3px 3px white;
-            }
-            .info{
-                background: url('mat/bg2.jpg');
-                margin:0;
-                height: 30%;
-            }
-            /*slider https://www.w3schools.com/howto/howto_js_rangeslider.asp  */
-            .slidecontainer {
-                width: 90%; /* Width of the outside container */
-                margin-left: 5%;
-                margin-right: 5%;
-                padding-top: 2%;
-                
-            }
+        .up {
+            transform: rotate(-135deg);
+            -webkit-transform: rotate(-135deg);
+        }
 
-            /* The slider itself */
-            .slider {
-                -webkit-appearance: none; /* Override default CSS styles */
-                appearance: none;
-                width: 100%; /* Full-width */
-                height: 15px;
-                border-radius: 5px;  
-                background: #d3d3d3; /* Grey background */
-                outline: none; /* Remove outline */
-                opacity: 0.4; /* Set transparency (for mouse-over effects on hover) */
-                -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
-                transition: opacity 0.2s;
-            }
+        .down {
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+        }
 
-            /* Mouse-over effects */
-            .slider:hover {
-                opacity: 1; /* Fully shown on mouse-over */
-            }
+        .buttons {
+            margin-left: 5%;
+            margin-top: 22px;
+        }
 
-            /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-            .slider::-webkit-slider-thumb {
-                -webkit-appearance: none; /* Override default look */
-                appearance: none;
-                width: 25px; /* Set a specific slider handle width */
-                height: 25px;
-                border-radius: 50%; 
-                background: #ffffff; /* Green background */
-                cursor: pointer; /* Cursor on hover */
-            }
+        button {
+            padding: 10px 13px;
+            border: 1px solid white;
+            border-radius: 5px;
+            font-family: 'Crimson Text', serif;
+            text-align: center;
+            background-color:transparent;
+            opacity: 0.6;
+            cursor: pointer;
+            color:white;
+            margin-right: 14px;
+        }
 
-            .slider::-moz-range-thumb {
-                width: 25px; /* Set a specific slider handle width */
-                height: 25px;
-                border-radius: 50%;
-                background: #424242; /* Green background */
-                cursor: pointer; /* Cursor on hover */
-            }
-            .optionsDiv{
-                color: #ffffff;
-                opacity:0.9;
-            }
-            .options{
-                maxWidth: 30px;
-            }
-            .options-title{
-                font-family: 'Comfortaa', cursive;
-            }
-            .options{
-                font-family: 'Crimson Text', serif;
-                position:relative;
-            }
-            .options::before { /* https://tobiasahlin.com/blog/css-trick-animating-link-underlines/ */
-                visibility: var(--isVisible);
-                content: "";
-                display: inline-block;  
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 2px;
-                background-color: #ffffff;
-                transform: var(--animationFcn);
-                transition: all 0.3s ease-in-out 0s;
-            }
+        button:hover {
+            opacity: 0.8;
+            transition: 0.3s;
+            text-shadow: 3px 3px 3px rgb(211, 210, 210);
+        }
 
-        </style>
-    </head>
+        .info {
+            background: url('mat/bg2.jpg');
+            margin: 0;
+            height: 30%;
+        }
 
-    <body onload="main()">
-        <canvas id="webgl" style="background: url('mat/bg.jpg')" width="800" height="400">
-            Please use a browser that supports "canvas"
-        </canvas>
-        <div class="info" style="background: url('mat/bg2.jpg')">
+        /*slider https://www.w3schools.com/howto/howto_js_rangeslider.asp  */
+        .slidecontainer {
+            width: 90%;
+            /* Width of the outside container */
+            margin-left: 5%;
+            margin-right: 5%;
+            padding-top: 2%;
+
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.4;
+            -webkit-transition: 0.2s;
+            transition: opacity 0.2s;
+            cursor: pointer;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #424242;
+            cursor: pointer;
+        }
+
+        .optionsDiv {
+            color: #ffffff;
+            opacity: 0.9;
+            margin-top: 10pt;
+        }
+
+        .options-title {
+            font-family: 'Comfortaa', cursive;
+        }
+
+        .options {
+            font-family: 'Crimson Text', serif;
+            position: relative;
+        }
+
+        .options::before {
+            /* https://tobiasahlin.com/blog/css-trick-animating-link-underlines/ */
+            visibility: var(--isVisible);
+            content: "";
+            display: inline-block;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #ffffff;
+            transform: var(--animationFcn);
+            transition: all 0.3s ease-in-out 0s;
+        }
+        .instructions{
+            color: white;
+            opacity: 0.8;
+            margin-left: 5%;
+            font-family: 'Comfortaa', cursive;
+        }
+        .instructions p{
+            float:right;
+            position:relative;
+            left: 0;
+        }
+        .general_info{
+            color: white;
+            opacity: 0.8;
+            margin-right: 5%;
+            font-family: 'Comfortaa', cursive;
+            float:right;
+            position: absolute;
+            bottom: 3%;
+            right: 0%;
+        }
+        .general_info p{
+            text-align: right;
+            font-size: 11pt;
+            margin: 0;
+        }
+        .dynamicInstruction{
+            font-family: 'Comfortaa', cursive;
+            color: white;
+            font-weight: 700;
+            visibility: var(--isVisible1);
+            transform: var(--animationFcn1);
+            transition: all 0.3s ease-in-out 0s;
+            margin-left: 5%;
+            position: absolute;
+            top:2%;
+            right:5%
+        }
+        #deco1{
+            position:absolute;
+            font-weight: 700;
+            color:white;
+            font-size: 30pt;
+            top:0.5%;
+            left:0%;
+        }
+        #deco2{
+            position:absolute;
+            font-weight: 700;
+            color:white;
+            font-size: 30pt;
+            bottom:0.5%;
+            right:0%;
+        }
+    </style>
+</head>
+
+<body onload="main()">
+    <canvas id="webgl" style="background: url('mat/bg.jpg')" width="800" height="400">
+        Please use a browser that supports "canvas"
+    </canvas>
+    <span id="deco1">「</span>
+    <span id="deco2">」</span>
+    <div class="info" style="background: url('mat/bg2.jpg')">
         <div class="slidecontainer">
             <div>
-            <input
-                type="range"
-                min="0"
-                max="4"
-                value="0"
-                class="slider"
-                id="shadingScheme"
-            />
+                <input type="range" min="0" max="4" value="0" class="slider" id="shadingScheme" />
             </div>
             <div class="optionsDiv">
-                <span class="options-title"> 👆<strong>Drag the Slider</strong> 👉 </span>
+                <span class="options-title">
+                    👆<strong>Drag the Slider</strong> 👉
+                </span>
                 <span class="options" id="opt0"> Default </span><span>|</span>
                 <span class="options" id="opt1"> Point Light Phong </span><span>|</span>
                 <span class="options" id="opt2"> Rotating Blinn Phong </span><span>|</span>
-                <span class="options" id="opt4"> Gouraud </span> <span>|</span>
-                <span class="options" id="opt5"> Foggy </span> <span>|</span>
-                
-
+                <span class="options" id="opt4"> Gouraud </span>
+                <span>|</span>
+                <span class="options" id="opt5"> Foggy </span>
+                <span>|</span>
             </div>
         </div>
         <div class="buttons">
-            <button onclick="gridDisplay()">Show Grid/Plane</button>
-            <button onclick="sphereDisplay()">Show Sphere/Hide Sphere</button >
+            <button id="showGrid" onclick="gridDisplay()">Show Plane</button>
+            <button id="showSphere" onclick="sphereDisplay()">
+                Show Sphere
+            </button>
+            <div class="general_info">
+                <p class="instructions">Move horizontally 👉 WSAD   </p>
+                <p class="instructions">Move vertically 👉 QE </p>
+                <p class="instructions">Change viewing angle 👉 arrow keys</p>
+                <p class="instructions">Zoom in/out 👉 Mouse Scroll</p>
+            </div>
+
         </div>
+        <div class="dynamicInstruction" id="dynamicInstruction0">
+            <p>Mouse drag to change the light direction</p>
         </div>
+        <div class="dynamicInstruction" id="dynamicInstruction0">
+            <p>interation: n/a</p>
+        </div>
+        <div class="dynamicInstruction" id="dynamicInstruction0">
+            <p>interation: n/a</p>
+        </div>
+        <div class="dynamicInstruction" id="dynamicInstruction0">
+            <p>interation: n/a</p>
+        </div>
+        <div class="dynamicInstruction" id="dynamicInstruction0">
+            <p>Press W/D to move forward/backward to view the contents clearly.</p>
+        </div>
+    </div>
 
-        <script src="lib/webgl-utils.js"></script>
-        <script src="lib/webgl-debug.js"></script>
-        <script src="lib/cuon-utils.js"></script>
-        <script src="lib/cuon-matrix-quat03.js"></script>
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix-quat03.js"></script>
 
-        <script src="lib/dat-gui.js"></script>
+    <script src="lib/dat-gui.js"></script>
 
-        <!--
+    <!--
     <script src="src/main.js"></script>
     <script src="src/shader.js"></script>
     <script src="src/initVBO.js"></script>
     <script src="src/drawShapes.js"></script>   
     -->
-        <script src="src/helperFunc.js"></script>
-        <script src="src/callBacks.js"></script>
-        <script src="src/calMotion.js"></script>
+    <script src="src/helperFunc.js"></script>
+    <script src="src/callBacks.js"></script>
+    <script src="src/calMotion.js"></script>
 
-        <script src="src2/initVBO_withShaders.js"></script>
-        <script src="src2/main.js"></script>
-        <script src="src2/VBOinfo.js"></script>
-        <script src="src2/shaderInfo.js"></script>
-        <script src="src2/draw.js"></script>
+    <script src="src2/initVBO_withShaders.js"></script>
+    <script src="src2/main.js"></script>
+    <script src="src2/VBOinfo.js"></script>
+    <script src="src2/shaderInfo.js"></script>
+    <script src="src2/draw.js"></script>
 
-        <script src="mat/materials_Ayerdi.js"></script>
-        <script src="mat/lights-JT.js"></script>
-    </body>
+    <script src="mat/materials_Ayerdi.js"></script>
+    <script src="mat/lights-JT.js"></script>
+</body>
+
 </html>
