@@ -283,16 +283,17 @@ var fogFrag =
 
 
 var testVert = // ! test blinn phong with gouraud 
+    'precision highp float;\n' +
+    'precision highp int;\n' +
     'attribute vec4 a_Position; \n' +		
     'attribute vec4 a_Normal; \n' +			
+
     'uniform mat4 u_MvpMatrix; \n' +
     'uniform mat4 u_ModelMatrix; \n' + 		
     'uniform mat4 u_NormalMatrix; \n' +  	
-    'varying vec3 v_Normal; \n' +	
-    'varying vec4 v_Position; \n' +	
-    'varying vec4 v_Color;\n' +
+    'uniform vec3 u_eyePosWorld; \n' + 	
+    
 
-    'varying vec3 v_Kd; \n' +
     'struct MatlT {\n' +		// Describes one Phong material by its reflectances:
     '		vec3 emit;\n' +			// Ke: emissive -- surface 'glow' amount (r,g,b);
     '		vec3 ambi;\n' +			// Ka: ambient reflectance (r,g,b)
@@ -300,6 +301,7 @@ var testVert = // ! test blinn phong with gouraud
     '		vec3 spec;\n' + 		// Ks: specular reflectance (r,g,b)
     '		int shiny;\n' +			// Kshiny: specular exponent (integer >= 1; typ. <200)
     '		};\n' +
+
     'struct LampT {\n' +		// Describes one point-like Phong light source
 	'	vec3 pos;\n' +			// (x,y,z,w); w==1.0 for local light at x,y,z position
 	' 	vec3 ambi;\n' +			// Ia ==  ambient light source strength (r,g,b)
@@ -307,61 +309,36 @@ var testVert = // ! test blinn phong with gouraud
 	'	vec3 spec;\n' +			// Is == specular light source strength (r,g,b)
     '}; \n' +
     
+    'uniform MatlT u_MatlSet[1];\n' +	
+    'uniform LampT u_LampSet[1];\n' +
+    'varying vec3 v_Color;\n' +
+    
     'void main() { \n' +
     '  gl_Position = u_MvpMatrix * a_Position;\n' +
-    '  v_Position = u_ModelMatrix * a_Position; \n' +
-    '  v_Normal = normalize(vec3(u_NormalMatrix * a_Normal));\n' +
-    '  v_Kd = u_MatlSet[0].diff; \n' +		// find per-pixel diffuse reflectance from per-vertex
+    '  vec4 position = u_ModelMatrix * a_Position; \n' +
+    "  vec3 normal = normalize(vec3(u_NormalMatrix * a_Normal)); \n" + // ? vec3(u_NormalMatrix * a_Normal) | v_normal
+    '  vec3 eyeDirection = normalize(u_eyePosWorld.xyz - position.xyz); \n' +
+    '  vec3 lightDirection = normalize(u_LampSet[0].pos - position.xyz);\n' +
+
+    '  vec3 Kd = u_MatlSet[0].diff; \n' +		// find per-pixel diffuse reflectance from per-vertex
+    '  float nDotL = max(dot(lightDirection, normal), 0.0); \n' + //cosine-falloff fact for diffuse
+    '  vec3 reflec = normalize(2.0*(normal * nDotL) - lightDirection);\n' + //phong no half
+    '  float rDotV = max(dot(reflec, eyeDirection), 0.0); \n' +
+    '  float e64 = pow(rDotV, float(u_MatlSet[0].shiny));\n' +
+
+    '  vec3 emissive = u_MatlSet[0].emit;' +
+    '  vec3 ambient = u_LampSet[0].ambi * u_MatlSet[0].ambi;\n' +
+    '  vec3 diffuse = u_LampSet[0].diff * Kd * nDotL;\n' +
+    '  vec3 speculr = u_LampSet[0].spec * u_MatlSet[0].spec * e64;\n' +
+
+    '  v_Color =  emissive + ambient + diffuse + speculr;\n' +
     '}\n';
 
 var testFrag  =
     'precision highp float;\n' +
     'precision highp int;\n' +
-
-    'struct LampT {\n' +		// Describes one point-like Phong light source
-    '		vec3 pos;\n' +			// (x,y,z,w); w==1.0 for local light at x,y,z position
-    ' 	vec3 ambi;\n' +			// Ia ==  ambient light source strength (r,g,b)
-    ' 	vec3 diff;\n' +			// Id ==  diffuse light source strength (r,g,b)
-    '		vec3 spec;\n' +			// Is == specular light source strength (r,g,b)
-    '}; \n' +
-
-    'struct MatlT {\n' +		// Describes one Phong material by its reflectances:
-    '		vec3 emit;\n' +			// Ke: emissive -- surface 'glow' amount (r,g,b);
-    '		vec3 ambi;\n' +			// Ka: ambient reflectance (r,g,b)
-    '		vec3 diff;\n' +			// Kd: diffuse reflectance (r,g,b)
-    '		vec3 spec;\n' + 		// Ks: specular reflectance (r,g,b)
-    '		int shiny;\n' +			// Kshiny: specular exponent (integer >= 1; typ. <200)
-    '		};\n' +
-
-    'uniform LampT u_LampSet[2];\n' +	//?
-    'uniform MatlT u_MatlSet[1];\n' +	//?
-
-    'uniform vec3 u_eyePosWorld; \n' + 
-    'varying vec3 v_Normal;\n' +			
-    'varying vec4 v_Position;\n' +			
-    'varying vec3 v_Kd;	\n' +						// Find diffuse reflectance K_d per pix
-
+    'varying vec3 v_Color;\n' +
     'void main() { \n' +
-    '  vec3 normal = normalize(v_Normal); \n' +
-    '  vec3 lightDirection = normalize(u_LampSet[0].pos - v_Position.xyz);\n' +
-    '  vec3 eyeDirection = normalize(u_eyePosWorld - v_Position.xyz); \n' +
-    '  float nDotL = max(dot(lightDirection, normal), 0.0); \n' +
-    '  vec3 H = normalize(lightDirection + eyeDirection); \n' +
-    '  float nDotH = max(dot(H, normal), 0.0); \n' +
-    '  float e64 = pow(nDotH, float(u_MatlSet[0].shiny));\n' +
-    '  vec3 emissive = u_MatlSet[0].emit;' +
-    '  vec3 ambient = u_LampSet[0].ambi * u_MatlSet[0].ambi;\n' +
-    '  vec3 diffuse = u_LampSet[0].diff * v_Kd * nDotL;\n' +
-    '  vec3 speculr = u_LampSet[0].spec * u_MatlSet[0].spec * e64;\n' +
-
-    '  vec3 headLightDirection = normalize(u_LampSet[1].pos - v_Position.xyz);\n' + //?
-    '  float nDotHL = max(dot(headLightDirection, normal), 0.0); \n' +
-    '  vec3 HH = normalize(headLightDirection + eyeDirection); \n' +
-    '  float nDotHH = max(dot(HH, normal), 0.0); \n' +
-    '  float e64_2 = pow(nDotHH, float(u_MatlSet[0].shiny));\n' +
-
-    '  vec3 diffuse2 = u_LampSet[1].diff * v_Kd * nDotHL;\n' +
-    '  vec3 speculr2 = u_LampSet[1].spec * u_MatlSet[0].spec * e64_2;\n' +
-    '  gl_FragColor = vec4(emissive + ambient + diffuse + speculr + diffuse2 + speculr2, 1.0);\n' +
+    '  gl_FragColor = vec4(v_Color, 1.0);\n' +
     '}\n';
 

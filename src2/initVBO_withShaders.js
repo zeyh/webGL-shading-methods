@@ -54,9 +54,9 @@ function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices, light
     }
 
     // ! (draggable spec == 3) as light source and material
-    if(this.lightSpec == 3){
+    if(this.lightSpec == 3 || this.lightSpec == 5){
         this.materialCode = materialCode;
-        this.g_lamp0 = new LightsT();
+        this.g_lamp0 = new LightsT(); //world-light
         // this.g_matlSel= MATL_RED_PLASTIC;	
         this.g_matl0 = new Material();
         if(materialCode != null){
@@ -109,7 +109,7 @@ VBO_genetic.prototype.init = function(){
         }
     }
     // * [Color] buffer
-    if(this.lightSpec != 2 && this.lightSpec != 3){ //assign color if not phong
+    if(this.lightSpec != 2 && this.lightSpec != 3 && this.lightSpec != 5){ //assign color
         this.colorBuffer = initArrayBufferForLaterUse(gl, this.colors, 3, gl.FLOAT);
         this.a_ColrLoc = gl.getAttribLocation(this.shaderLoc, "a_Color");
         if (this.a_ColrLoc < 0 || !this.colorBuffer) {
@@ -154,7 +154,7 @@ VBO_genetic.prototype.init = function(){
 
 
     // * [Eye] position world attribute
-    if(this.lightSpec != 0 && this.lightSpec != 1 && this.lightSpec != 5){
+    if(this.lightSpec != 0 && this.lightSpec != 1){
         this.u_eyePosWorld = gl.getUniformLocation(this.shaderLoc, 'u_eyePosWorld');
         if (!this.u_eyePosWorld) {
             console.log('Failed to get matrix storage locations [u_eyePosWorld]');
@@ -162,7 +162,7 @@ VBO_genetic.prototype.init = function(){
         }
     }
     // * [Light] color/position/ambient
-    if(this.lightSpec == 1 || this.lightSpec == 5 ){ //PointLight
+    if(this.lightSpec == 1 ){ //PointLight
         if ( !this.u_ModelMatLoc ) {
             console.log(
                 this.constructor.name +
@@ -199,12 +199,12 @@ VBO_genetic.prototype.init = function(){
         }
     }
     // * struct [Lamp] and [Material]
-    if(this.lightSpec == 3) { //draggable phong
+    if(this.lightSpec == 3 || this.lightSpec == 5) { //draggable phong
         //reference in struct instead
-        this.g_lamp0.u_pos  = gl.getUniformLocation(this.shaderLoc, 	'u_LampSet[0].pos');
+        this.g_lamp0.u_pos  = gl.getUniformLocation(this.shaderLoc,  'u_LampSet[0].pos');
         this.g_lamp0.u_ambi  = gl.getUniformLocation(this.shaderLoc, 'u_LampSet[0].ambi');
-        this.g_lamp0.u_diff = gl.getUniformLocation(this.shaderLoc, 	'u_LampSet[0].diff');
-        this.g_lamp0.u_spec = gl.getUniformLocation(this.shaderLoc,	'u_LampSet[0].spec');
+        this.g_lamp0.u_diff = gl.getUniformLocation(this.shaderLoc,  'u_LampSet[0].diff');
+        this.g_lamp0.u_spec = gl.getUniformLocation(this.shaderLoc,	 'u_LampSet[0].spec');
         if( !this.g_lamp0.u_pos || !this.g_lamp0.u_ambi ||!this.g_lamp0.u_diff ||!this.g_lamp0.u_spec) {
             console.log('Failed to get the Lamp0 storage locations');
             return;
@@ -244,7 +244,7 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
     if(this.indexBuffer != undefined) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     }
-    if(this.lightSpec == 1 || this.lightSpec == 5){
+    if(this.lightSpec == 1){
         // Set the light color (pink)
         gl.uniform3f(this.u_LightColor, 1.0, 0.5, 0.5);
         // Set the light direction (in the world coordinate)
@@ -270,14 +270,17 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         
     }
     if(this.lightSpec == 3){
-        if(this.materialCode == undefined){
-            this.g_matl0.setMatl(g_matlSel);
-        }
+        // * [eye] position world
         var	eyePosWorld = new Float32Array(3);	// x,y,z in world coords
         eyePosWorld.set([6.0, 2.0, 5.0]);
         gl.uniform3fv(this.u_eyePosWorld, eyePosWorld);
 
-        // Init World-coord. position & colors of first light source in global vars;
+        // * [Material]
+        if(this.materialCode == undefined){
+            this.g_matl0.setMatl(g_matlSel);
+        }
+
+        // * [Lamp] & [Mouse Drag]
         if(g_lamp0PosY != undefined && g_lamp0PosZ != undefined){ //TODO: somehow unable to change directly in mouseMove(ev)
             this.g_lamp0.I_pos.elements[1] += g_lamp0PosY;
             this.g_lamp0.I_pos.elements[2] += g_lamp0PosZ;
@@ -285,6 +288,34 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         }else{
             this.g_lamp0.I_pos.elements.set( [6.0, 5.0, 5.0]);
         }
+        this.g_lamp0.I_ambi.elements.set([0.4, 0.4, 0.4]);
+        this.g_lamp0.I_diff.elements.set([1.0, 1.0, 1.0]);
+        this.g_lamp0.I_spec.elements.set([1.0, 1.0, 1.0]);
+
+        gl.uniform3fv(this.g_lamp0.u_pos,  this.g_lamp0.I_pos.elements.slice(0,3));
+        gl.uniform3fv(this.g_lamp0.u_ambi, this.g_lamp0.I_ambi.elements);		// ambient
+        gl.uniform3fv(this.g_lamp0.u_diff, this.g_lamp0.I_diff.elements);		// diffuse
+        gl.uniform3fv(this.g_lamp0.u_spec, this.g_lamp0.I_spec.elements);		// Specular
+      
+        gl.uniform3fv(this.g_matl0.uLoc_Ke, this.g_matl0.K_emit.slice(0,3));				// Ke emissive
+        gl.uniform3fv(this.g_matl0.uLoc_Ka, this.g_matl0.K_ambi.slice(0,3));				// Ka ambient
+        gl.uniform3fv(this.g_matl0.uLoc_Kd, this.g_matl0.K_diff.slice(0,3));				// Kd	diffuse
+        gl.uniform3fv(this.g_matl0.uLoc_Ks, this.g_matl0.K_spec.slice(0,3));				// Ks specular
+        gl.uniform1i(this.g_matl0.uLoc_Kshiny, parseInt(this.g_matl0.K_shiny, 10)); 
+    }
+    if(this.lightSpec == 5){
+        // * [eye] position world
+        var	eyePosWorld = new Float32Array(3);	// x,y,z in world coords
+        eyePosWorld.set([6.0, 2.0, 5.0]);
+        gl.uniform3fv(this.u_eyePosWorld, eyePosWorld);
+
+        // * [Material]
+        if(this.materialCode == undefined){
+            this.g_matl0.setMatl(g_matlSel);
+        }
+
+        // * [Lamp]
+        this.g_lamp0.I_pos.elements.set( [3.0, 5.0, 5.0]);
         this.g_lamp0.I_ambi.elements.set([0.4, 0.4, 0.4]);
         this.g_lamp0.I_diff.elements.set([1.0, 1.0, 1.0]);
         this.g_lamp0.I_spec.elements.set([1.0, 1.0, 1.0]);
