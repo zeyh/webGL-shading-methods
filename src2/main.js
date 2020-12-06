@@ -22,7 +22,7 @@
 
 ! lighting/shading methods*4👇
 ! 70%: Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
-! 70%: Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
+  100%: Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
 ! 30%: Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
 ! 30%: Blinn-Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
 */
@@ -89,45 +89,46 @@ function main() {
     // gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.enable(gl.DEPTH_TEST);
-    // gl.enable(gl.BLEND);// Enable alpha blending
-    // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Set blending function conflict with shadow...?
+    gl.enable(gl.BLEND);// Enable alpha blending
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Set blending function conflict with shadow...?
+    
     g_modelMatrix = new Matrix4(); 
 
-    shaderingScheme = { //! [plane, cube, cube2, sphere, sphere2, cube3]
+    shaderingScheme = { //[plane, cube, cube2, sphere, sphere2, cube3]
         0:[
-            [draggablePhongVert,draggablePhongFrag,3], //! [vert, frag shader, light Spec, material code]
-            [draggablePhongVert,draggablePhongFrag,3],
-            [draggablePhongVert,draggablePhongFrag,3],
-            [draggablePhongVert,draggablePhongFrag,3],
-            [draggablePhongVert,draggablePhongFrag,3],
-            [fogVert,fogFrag,4]
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,3], // [vert, frag shader, light Spec, material code]
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,3], // ! all material applied & interations
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,3],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,3],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,3],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,3]
         ],
         1:[
-            [pointLightVert,pointLightFrag,1], //maybe a better way to structure this...
-            [pointLightVert,pointLightFrag,1],
-            [pointLightVert,pointLightFrag,1],
-            [pointLightVert,pointLightFrag,1],
-            [pointLightVert,pointLightFrag,1],
-            [pointLightVert,pointLightFrag,1]
+            [gouraudVert,gouraudFrag,1], //maybe a better way to structure this...
+            [gouraudVert,gouraudFrag,1], // ! Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
+            [gouraudVert,gouraudFrag,1],
+            [gouraudVert,gouraudFrag,1],
+            [gouraudVert,gouraudFrag,1],
+            [gouraudVert,gouraudFrag,1]
         ],
         2:[
-            [phongVert,phongFrag,2],
-            [phongVert,phongFrag,2],
-            [phongVert,phongFrag,2],
-            [phongVert,phongFrag,2],
-            [phongVert,phongFrag,2],
-            [phongVert,phongFrag,2],
+            [blinnphongVert,blinnphongFrag,2], // ! Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
+            [blinnphongVert,blinnphongFrag,2],
+            [blinnphongVert,blinnphongFrag,2],
+            [blinnphongVert,blinnphongFrag,2],
+            [blinnphongVert,blinnphongFrag,2],
+            [blinnphongVert,blinnphongFrag,2],
         ],
         3:[
-            [draggablePhongVert,draggablePhongFrag,3],
-            [draggablePhongVert,draggablePhongFrag,3],
-            [draggablePhongVert,draggablePhongFrag,3],
-            [draggablePhongVert,draggablePhongFrag,3],
-            [draggablePhongVert,draggablePhongFrag,3],
-            [draggablePhongVert,draggablePhongFrag,3],
+            [phongVert,phongFrag,5], // ! Phong shading & lighting
+            [phongVert,phongFrag,5],
+            [phongVert,phongFrag,5],
+            [phongVert,phongFrag,5],
+            [phongVert,phongFrag,5],
+            [phongVert,phongFrag,5],
         ],
         4:[
-            [fogVert,fogFrag,4],
+            [fogVert,fogFrag,4], // ! distance dependent
             [fogVert,fogFrag,4],
             [fogVert,fogFrag,4],
             [fogVert,fogFrag,4],

@@ -130,6 +130,7 @@
 
         .options-title {
             font-family: 'Comfortaa', cursive;
+            margin-right: 10px;
         }
 
         .options {
@@ -189,6 +190,9 @@
             top:2%;
             right:5%
         }
+        .dynamicInstruction p{
+            line-height: 10px;
+        }
         #deco1{
             position:absolute;
             font-weight: 700;
@@ -221,15 +225,14 @@
             </div>
             <div class="optionsDiv">
                 <span class="options-title">
-                    👆<strong>Drag the Slider</strong> 👉
+                    👆 <strong> Drag the Slider </strong> 👉 
                 </span>
                 <span class="options" id="opt0"> Default </span><span>|</span>
-                <span class="options" id="opt1"> Point Light Phong </span><span>|</span>
-                <span class="options" id="opt2"> Rotating Blinn Phong </span><span>|</span>
-                <span class="options" id="opt4"> Gouraud </span>
+                <span class="options" id="opt1"> Gouraud </span><span>|</span>
+                <span class="options" id="opt2"> Blinn Phong </span><span>|</span>
+                <span class="options" id="opt4"> Phong </span>
                 <span>|</span>
                 <span class="options" id="opt5"> Foggy </span>
-                <span>|</span>
             </div>
         </div>
         <div class="buttons">
@@ -247,12 +250,13 @@
         </div>
         <div class="dynamicInstruction" id="dynamicInstruction0">
             <p>Mouse drag to change the light direction</p>
+            <p>Blinn Phong w/ multiple materials</p>
         </div>
         <div class="dynamicInstruction" id="dynamicInstruction0">
-            <p>interation: n/a</p>
+            <p>interation: n/a | Gouraud shaded; ambient + diffuse only.</p>
         </div>
         <div class="dynamicInstruction" id="dynamicInstruction0">
-            <p>interation: n/a</p>
+            <p>Blinn-Phong lighting with Phong Shading</p>
         </div>
         <div class="dynamicInstruction" id="dynamicInstruction0">
             <p>interation: n/a</p>

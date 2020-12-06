@@ -28,7 +28,7 @@ var diffuseFrag =
     "  gl_FragColor = v_Color;\n" +
     "}\n";
 
-var pointLightVert =
+var gouraudVert = // !  Phong lighting w/ Gouraud Shading (computes colors per vertex; interpolates color only)
     "attribute vec4 a_Position;\n" +
     "attribute vec4 a_Color;\n" +
     "attribute vec4 a_Normal;\n" +
@@ -53,11 +53,13 @@ var pointLightVert =
     "  vec3 diffuse = u_LightColor * a_Color.rgb * nDotL;\n" +
     // Calculate the color due to ambient reflection
     "  vec3 ambient = u_AmbientLight * a_Color.rgb;\n" +
+    "  vec3 emissive = vec3(0.1, 0.05, 0.07);\n" +
+    "  vec3 speculr = vec3(0.1, 0.05, 0.07);\n" +
     // Add the surface colors due to diffuse reflection and ambient reflection
-    "  v_Color = vec4(diffuse + ambient, a_Color.a);\n" +
+    "  v_Color = vec4(emissive + diffuse + ambient + speculr, a_Color.a);\n" +
     "}\n";
 
-var pointLightFrag =
+var gouraudFrag = // !  Phong lighting w/ Gouraud Shading (computes colors per vertex; interpolates color only)
     "#ifdef GL_ES\n" +
     "precision mediump float;\n" +
     "#endif\n" +
@@ -66,7 +68,7 @@ var pointLightFrag =
     "  gl_FragColor = v_Color;\n" +
     "}\n";
 
-var phongVert =
+var blinnphongVert = // ! Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
     "attribute vec4 a_Position; \n" +
     "attribute vec4 a_Normal; \n" +
     // "attribute vec4 a_color;\n" + //just not used...		use kd instead
@@ -85,7 +87,7 @@ var phongVert =
     //	'  v_Kd = vec3(1.0, 1.0, 0.0); \n'	+ // TEST ONLY; fixed at green
     "}\n";
 
-var phongFrag =
+var blinnphongFrag = // ! Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
     "#ifdef GL_ES\n" +
     "precision mediump float;\n" +
     "#endif\n" +
@@ -128,13 +130,9 @@ var phongFrag =
     "  vec3 diffuse = u_Lamp0Diff * v_Kd * nDotL;\n" +
     "  vec3 speculr = u_Lamp0Spec * u_Ks * e64;\n" +
     "  gl_FragColor = vec4(emissive + ambient + diffuse + speculr , 1.0);\n" +
-    //  '  gl_FragColor = vec4(emissive, 1.0);\n' +
-    //  '  gl_FragColor = vec4(emissive + ambient, 1.0);\n' +
-    //  '  gl_FragColor = vec4(emissive + ambient + diffuse, 1.0);\n' +
-    //  '  gl_FragColor = vec4(ambient + speculr , 1.0);\n' +
     "}\n";
 
-var draggablePhongVert =
+var draggableBlinnPhongVert = // ! TODO: add second head light
     "struct MatlT {\n" +
     "		vec3 emit;\n" + // Ke: emissive -- surface 'glow' amount (r,g,b);
     "		vec3 ambi;\n" + // Ka: ambient reflectance (r,g,b)
@@ -162,7 +160,7 @@ var draggablePhongVert =
     "  v_Kd = u_MatlSet[0].diff; \n" + // find per-pixel diffuse reflectance from per-vertex
     "}\n";
 
-var draggablePhongFrag = 
+var draggableBlinnPhongFrag =  // ! TODO: add second head light
     'precision highp float;\n' +
     'precision highp int;\n' +
   
@@ -209,6 +207,49 @@ var draggablePhongFrag =
     '  gl_FragColor = vec4(emissive + ambient + diffuse + speculr , 1.0);\n' +
     '}\n';
 
+var phongVert =  // ! Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
+    'attribute vec4 a_Position;\n' +
+    "attribute vec4 a_Color;\n" +
+    //  'attribute vec4 a_Color;\n' + // Defined constant in main()
+    'attribute vec4 a_Normal;\n' +
+    'uniform mat4 u_MvpMatrix;\n' +
+    'uniform mat4 u_ModelMatrix;\n' +    // Model matrix
+    'uniform mat4 u_NormalMatrix;\n' +   // Transformation matrix of the normal
+    'varying vec4 v_Color;\n' +
+    'varying vec3 v_Normal;\n' +
+    'varying vec3 v_Position;\n' +
+    'void main() {\n' +
+    '  gl_Position = u_MvpMatrix * a_Position;\n' +
+    // Calculate the vertex position in the world coordinate
+    '  v_Position = vec3(u_ModelMatrix * a_Position);\n' +
+    '  v_Normal = normalize(vec3(u_NormalMatrix * a_Normal));\n' +
+    '  v_Color = a_Color;\n' + 
+    '}\n';
+
+var phongFrag =  // ! Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
+    'attribute vec4 a_Position;\n' +
+    '#ifdef GL_ES\n' +
+    'precision mediump float;\n' +
+    '#endif\n' +
+    'uniform vec3 u_LightColor;\n' +     // Light color
+    'uniform vec3 u_LightPosition;\n' +  // Position of the light source
+    'uniform vec3 u_AmbientLight;\n' +   // Ambient light color
+    'varying vec3 v_Normal;\n' +
+    'varying vec3 v_Position;\n' +
+    'varying vec4 v_Color;\n' +
+    'void main() {\n' +
+    // Normalize the normal because it is interpolated and not 1.0 in length any more
+    '  vec3 normal = normalize(v_Normal);\n' +
+    // Calculate the light direction and make it 1.0 in length
+    '  vec3 lightDirection = normalize(u_LightPosition - v_Position);\n' +
+    // The dot product of the light direction and the normal
+    '  float nDotL = max(dot(lightDirection, normal), 0.0);\n' +
+    // Calculate the final color from diffuse reflection and ambient reflection
+    '  vec3 diffuse = u_LightColor * v_Color.rgb * nDotL;\n' +
+    '  vec3 ambient = u_AmbientLight * v_Color.rgb;\n' +
+    '  gl_FragColor = vec4(diffuse + ambient, v_Color.a);\n' +
+    '}\n';
+
 var fogVert = 
     'attribute vec4 a_Position;\n' +
     'attribute vec4 a_Color;\n' +
@@ -239,3 +280,88 @@ var fogFrag =
     '  vec3 color = mix(u_FogColor, vec3(v_Color), fogFactor);\n' +
     '  gl_FragColor = vec4(color, v_Color.a);\n' +
     '}\n';   
+
+
+var testVert = // ! test blinn phong with gouraud 
+    'attribute vec4 a_Position; \n' +		
+    'attribute vec4 a_Normal; \n' +			
+    'uniform mat4 u_MvpMatrix; \n' +
+    'uniform mat4 u_ModelMatrix; \n' + 		
+    'uniform mat4 u_NormalMatrix; \n' +  	
+    'varying vec3 v_Normal; \n' +	
+    'varying vec4 v_Position; \n' +	
+    'varying vec4 v_Color;\n' +
+
+    'varying vec3 v_Kd; \n' +
+    'struct MatlT {\n' +		// Describes one Phong material by its reflectances:
+    '		vec3 emit;\n' +			// Ke: emissive -- surface 'glow' amount (r,g,b);
+    '		vec3 ambi;\n' +			// Ka: ambient reflectance (r,g,b)
+    '		vec3 diff;\n' +			// Kd: diffuse reflectance (r,g,b)
+    '		vec3 spec;\n' + 		// Ks: specular reflectance (r,g,b)
+    '		int shiny;\n' +			// Kshiny: specular exponent (integer >= 1; typ. <200)
+    '		};\n' +
+    'struct LampT {\n' +		// Describes one point-like Phong light source
+	'	vec3 pos;\n' +			// (x,y,z,w); w==1.0 for local light at x,y,z position
+	' 	vec3 ambi;\n' +			// Ia ==  ambient light source strength (r,g,b)
+	' 	vec3 diff;\n' +			// Id ==  diffuse light source strength (r,g,b)
+	'	vec3 spec;\n' +			// Is == specular light source strength (r,g,b)
+    '}; \n' +
+    
+    'void main() { \n' +
+    '  gl_Position = u_MvpMatrix * a_Position;\n' +
+    '  v_Position = u_ModelMatrix * a_Position; \n' +
+    '  v_Normal = normalize(vec3(u_NormalMatrix * a_Normal));\n' +
+    '  v_Kd = u_MatlSet[0].diff; \n' +		// find per-pixel diffuse reflectance from per-vertex
+    '}\n';
+
+var testFrag  =
+    'precision highp float;\n' +
+    'precision highp int;\n' +
+
+    'struct LampT {\n' +		// Describes one point-like Phong light source
+    '		vec3 pos;\n' +			// (x,y,z,w); w==1.0 for local light at x,y,z position
+    ' 	vec3 ambi;\n' +			// Ia ==  ambient light source strength (r,g,b)
+    ' 	vec3 diff;\n' +			// Id ==  diffuse light source strength (r,g,b)
+    '		vec3 spec;\n' +			// Is == specular light source strength (r,g,b)
+    '}; \n' +
+
+    'struct MatlT {\n' +		// Describes one Phong material by its reflectances:
+    '		vec3 emit;\n' +			// Ke: emissive -- surface 'glow' amount (r,g,b);
+    '		vec3 ambi;\n' +			// Ka: ambient reflectance (r,g,b)
+    '		vec3 diff;\n' +			// Kd: diffuse reflectance (r,g,b)
+    '		vec3 spec;\n' + 		// Ks: specular reflectance (r,g,b)
+    '		int shiny;\n' +			// Kshiny: specular exponent (integer >= 1; typ. <200)
+    '		};\n' +
+
+    'uniform LampT u_LampSet[2];\n' +	//?
+    'uniform MatlT u_MatlSet[1];\n' +	//?
+
+    'uniform vec3 u_eyePosWorld; \n' + 
+    'varying vec3 v_Normal;\n' +			
+    'varying vec4 v_Position;\n' +			
+    'varying vec3 v_Kd;	\n' +						// Find diffuse reflectance K_d per pix
+
+    'void main() { \n' +
+    '  vec3 normal = normalize(v_Normal); \n' +
+    '  vec3 lightDirection = normalize(u_LampSet[0].pos - v_Position.xyz);\n' +
+    '  vec3 eyeDirection = normalize(u_eyePosWorld - v_Position.xyz); \n' +
+    '  float nDotL = max(dot(lightDirection, normal), 0.0); \n' +
+    '  vec3 H = normalize(lightDirection + eyeDirection); \n' +
+    '  float nDotH = max(dot(H, normal), 0.0); \n' +
+    '  float e64 = pow(nDotH, float(u_MatlSet[0].shiny));\n' +
+    '  vec3 emissive = u_MatlSet[0].emit;' +
+    '  vec3 ambient = u_LampSet[0].ambi * u_MatlSet[0].ambi;\n' +
+    '  vec3 diffuse = u_LampSet[0].diff * v_Kd * nDotL;\n' +
+    '  vec3 speculr = u_LampSet[0].spec * u_MatlSet[0].spec * e64;\n' +
+
+    '  vec3 headLightDirection = normalize(u_LampSet[1].pos - v_Position.xyz);\n' + //?
+    '  float nDotHL = max(dot(headLightDirection, normal), 0.0); \n' +
+    '  vec3 HH = normalize(headLightDirection + eyeDirection); \n' +
+    '  float nDotHH = max(dot(HH, normal), 0.0); \n' +
+    '  float e64_2 = pow(nDotHH, float(u_MatlSet[0].shiny));\n' +
+
+    '  vec3 diffuse2 = u_LampSet[1].diff * v_Kd * nDotHL;\n' +
+    '  vec3 speculr2 = u_LampSet[1].spec * u_MatlSet[0].spec * e64_2;\n' +
+    '  gl_FragColor = vec4(emissive + ambient + diffuse + speculr + diffuse2 + speculr2, 1.0);\n' +
+    '}\n';
+

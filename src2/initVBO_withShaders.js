@@ -140,7 +140,7 @@ VBO_genetic.prototype.init = function(){
             return -1; // error exit.
         }
     }
-    // ! init attribute locations
+    // ! init attribute locations 
     this.a_PosLoc = gl.getAttribLocation(this.shaderLoc, "a_Position");
     this.u_ModelMatLoc = gl.getUniformLocation(this.shaderLoc, 'u_ModelMatrix'); //may not be used and null for simple diffuse lighting
     this.u_MvpMatLoc = gl.getUniformLocation(this.shaderLoc, "u_MvpMatrix");
@@ -154,7 +154,7 @@ VBO_genetic.prototype.init = function(){
 
 
     // * [Eye] position world attribute
-    if(this.lightSpec != 0 && this.lightSpec != 1){
+    if(this.lightSpec != 0 && this.lightSpec != 1 && this.lightSpec != 5){
         this.u_eyePosWorld = gl.getUniformLocation(this.shaderLoc, 'u_eyePosWorld');
         if (!this.u_eyePosWorld) {
             console.log('Failed to get matrix storage locations [u_eyePosWorld]');
@@ -162,7 +162,7 @@ VBO_genetic.prototype.init = function(){
         }
     }
     // * [Light] color/position/ambient
-    if(this.lightSpec == 1){ //PointLight
+    if(this.lightSpec == 1 || this.lightSpec == 5 ){ //PointLight
         if ( !this.u_ModelMatLoc ) {
             console.log(
                 this.constructor.name +
@@ -244,13 +244,13 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
     if(this.indexBuffer != undefined) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     }
-    if(this.lightSpec == 1){
+    if(this.lightSpec == 1 || this.lightSpec == 5){
         // Set the light color (pink)
         gl.uniform3f(this.u_LightColor, 1.0, 0.5, 0.5);
         // Set the light direction (in the world coordinate)
-        gl.uniform3f(this.u_LightPosition, 12.5, 50.0, 51.5);
+        gl.uniform3f(this.u_LightPosition,  5.0, 10.0, 3.0);
         // Set the ambient light
-        gl.uniform3f(this.u_AmbientLight, 0.5, 0.5, 0.5);
+        gl.uniform3f(this.u_AmbientLight, 0.3, 0.3, 0.3);
     }
     if(this.lightSpec == 2){
         // Position the first light source in World coords:  then Set its light output: 
