@@ -9,22 +9,24 @@
   Done: Large, Slowly-spinning Sphere [move at (0,0,0)]
   Done: Assign different looking phong material to 3+ object
   Done: Rearrange Objects + 3 solid jointed obj 
+  Done: Add on screen instructions for each lighting scheme/ available keyboard/mouse interation options
+  Done: Gouraud Shading
+  Done: combine to get the 4 methods👇
+
+  🚩lighting/shading methods*4👇
+  100%: Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
+  100%: Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
+  100%: Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
+  100%: Blinn-Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
+
 * Almost: user-selected distance dependencies??? does Foggy effect count?
-* Almost: Add on screen instructions for each lighting scheme/ available keyboard/mouse interation options
 
-
-! TODO: 0. lighting change with object movement...😠 .. something messing with modelMatrix...
-! TODO: 1. Gouraud Shading
-! TODO: 2. combine to get the 4 methods👇
+! TODO: 0. [setting with clearDrag @ htmlCallBack.js] lighting change with object movement...😠 .. 
 ! TODO: 3. non-directional light source (headlight) on/off
 ! TODO: 4. Simple Texture Maps emmisive
 ! TODO: 5. geometric shape distortions in shaders???
 
-! lighting/shading methods*4👇
-! 70%: Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
-  100%: Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
-! 30%: Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
-! 30%: Blinn-Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
+
 */
 
 "use strict"
@@ -32,7 +34,7 @@ var canvas;
 var gl;	
 var g_viewProjMatrix;
 var g_modelMatrix;
-var shaderingScheme;
+var shadingScheme;
 var vboArray;
 
 function initVBOs(currScheme){
@@ -58,7 +60,6 @@ function initVBOs(currScheme){
     sphere_drag.init();
     var cube_fog = new VBO_genetic(currScheme[5][0], currScheme[5][1], cube_vertices, cube_colors_multi, cube_normals, cube_indices, currScheme[5][2]);
     cube_fog.init();
-
 
     vboArray = [grid, cube, sphere, cube_red, sphere_drag, cube_fog, plane, sphere2, cube_joint, sphere3, sphere4];
 }
@@ -91,10 +92,10 @@ function main() {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);// Enable alpha blending
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Set blending function conflict with shadow...?
-    
     g_modelMatrix = new Matrix4(); 
 
-    shaderingScheme = { //[plane, cube, cube2, sphere, sphere2, cube3]
+    // TODO: maybe a better way to structure this...
+    shadingScheme = { //[plane, cube, cube2, sphere, sphere2, cube3] 
         0:[
             [draggableBlinnPhongVert,draggableBlinnPhongFrag,3], // [vert, frag shader, light Spec, material code]
             [draggableBlinnPhongVert,draggableBlinnPhongFrag,3], // ! all material applied & interations
@@ -104,30 +105,22 @@ function main() {
             [draggableBlinnPhongVert,draggableBlinnPhongFrag,3]
         ],
         1:[
-            [gouraudVert,gouraudFrag,1], //maybe a better way to structure this...
-            [gouraudVert,gouraudFrag,1], // ! Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
-            [gouraudVert,gouraudFrag,1],
-            [gouraudVert,gouraudFrag,1],
-            [gouraudVert,gouraudFrag,1],
-            [gouraudVert,gouraudFrag,1]
+            [PhongPhongVert,PhongPhongFrag,5], // ! Phong Shading & Phong Lighting
+            [PhongPhongVert,PhongPhongFrag,5],
+            [PhongPhongVert,PhongPhongFrag,5],
+            [PhongPhongVert,PhongPhongFrag,5],
+            [PhongPhongVert,PhongPhongFrag,5],
+            [PhongPhongVert,PhongPhongFrag,5],
         ],
         2:[
-            [blinnphongVert,blinnphongFrag,2], // ! Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
-            [blinnphongVert,blinnphongFrag,2],
-            [blinnphongVert,blinnphongFrag,2],
-            [blinnphongVert,blinnphongFrag,2],
-            [blinnphongVert,blinnphongFrag,2],
-            [blinnphongVert,blinnphongFrag,2],
+            [gouraudPhongVert,gouraudPhongFrag,5], // ! Gouraud Shading & Phong Lighting
+            [gouraudPhongVert,gouraudPhongFrag,5],
+            [gouraudPhongVert,gouraudPhongFrag,5],
+            [gouraudPhongVert,gouraudPhongFrag,5],
+            [gouraudPhongVert,gouraudPhongFrag,5],
+            [gouraudPhongVert,gouraudPhongFrag,5],
         ],
         3:[
-            [phongVert,phongFrag,5], // ! Phong shading & lighting
-            [phongVert,phongFrag,5],
-            [phongVert,phongFrag,5],
-            [phongVert,phongFrag,5],
-            [phongVert,phongFrag,5],
-            [phongVert,phongFrag,5],
-        ],
-        4:[
             [fogVert,fogFrag,4], // ! distance dependent
             [fogVert,fogFrag,4],
             [fogVert,fogFrag,4],
@@ -135,12 +128,29 @@ function main() {
             [fogVert,fogFrag,4],
             [fogVert,fogFrag,4],
         ],
+        4:[
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],  // ! Phong Shading & Blinn Phong Lighting
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+        ],
+        5:[
+            [gouraudBlinnVert,gouraudBlinnFrag,5], 
+            [gouraudBlinnVert,gouraudBlinnFrag,5], // ! Gouraud Shading & Blinn Phong Lighting
+            [gouraudBlinnVert,gouraudBlinnFrag,5],
+            [gouraudBlinnVert,gouraudBlinnFrag,5],
+            [gouraudBlinnVert,gouraudBlinnFrag,5],
+            [gouraudBlinnVert,gouraudBlinnFrag,5]
+        ],
     };
-    // ! scheme selection
-    var currScheme = shaderingScheme[g_schemeOpt]; 
-    controlScheme(); //get the slider responsive
 
-    
+    // ! scheme selection
+    controlScheme(); //get the slider responsive
+    controlSwitch(); //set the switch
+    controlSwitch2();
+
     var tick = function () {
         canvas.width = window.innerWidth * 1; //resize canvas
         canvas.height = window.innerHeight * 7 / 10;
@@ -160,7 +170,6 @@ function main() {
     
         drawAll(vboArray);
         window.requestAnimationFrame(tick, canvas);
-
 
     }
     tick();

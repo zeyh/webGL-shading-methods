@@ -25,7 +25,7 @@ function controlScheme(){
     var underline = function(){
         var currSelectionValue = slider.value;
         g_schemeOpt = currSelectionValue; // ! update shading scheme
-        initVBOs(shaderingScheme[g_schemeOpt]); // ! update all VBO associated w/ the shading scheme
+        initVBOs(shadingScheme[g_schemeOpt]); // ! update all VBO associated w/ the shading scheme
         var currStyle = optionText[currSelectionValue].style;
         var currInstructionStyle = instructions[currSelectionValue].style;
         currStyle.fontWeight = 700;
@@ -46,6 +46,35 @@ function controlScheme(){
 
     slider.oninput = function(){ //keep listening slider input change
         underline();
+    }
+}
+
+var isBlinn = false;
+function controlSwitch(){
+    var currSwitch = document.getElementById("phongSwitch");
+    var watchSwitch = function(){
+        isBlinn = !isBlinn;
+        document.getElementById('phongSwitchText').textContent = isBlinn ? "Phong" : "Blinn-Phong";
+        g_schemeOpt = !isBlinn ? 1 : 4;
+        initVBOs(shadingScheme[g_schemeOpt]);
+    }
+    currSwitch.oninput = function(){ //keep listening slider input change
+        watchSwitch();
+    }
+}
+
+var isBlinn2 = false;
+function controlSwitch2(){
+    var currSwitch = document.getElementById("gouraudSwitch");
+    var watchSwitch2 = function(){
+        isBlinn2 = !isBlinn2;
+        document.getElementById('gouraudSwitchText').textContent = isBlinn2 ? "Phong" : "Blinn-Phong";
+        g_schemeOpt = !isBlinn2 ? 2 : 5;
+        console.log(g_schemeOpt)
+        initVBOs(shadingScheme[g_schemeOpt]);
+    }
+    currSwitch.oninput = function(){ //keep listening slider input change
+        watchSwitch2();
     }
 }
 
@@ -248,21 +277,21 @@ function keyQE(ev) {
 
 function keyArrowRotateRight(ev) {
     if (ev.keyCode == 39) { // ->
-        g_LookX += 0.05 * g_speed; //unstable rate of rotation
+        g_LookX += 0.09 * g_speed; //unstable rate of rotation
     } else if (ev.keyCode == 37) { // <-
-        g_LookX -= 0.05 * g_speed;
+        g_LookX -= 0.09 * g_speed;
     } else { return; }
 }
 
 function keyArrowRotateUp(ev) {//change x from -1 to 1
     if (ev.keyCode == 38) { // up ^
-        g_LookY += 0.05 * g_speed;
+        g_LookY += 0.07 * g_speed;
     } else if (ev.keyCode == 40) { // down v
-        g_LookY -= 0.05 * g_speed;
+        g_LookY -= 0.07 * g_speed;
     } else { return; }
 }
 
-var g_matlSel = 9;
+var g_matlSel = 18;
 function materialKeyPress(ev) {
         switch(ev.keyCode)
         {
