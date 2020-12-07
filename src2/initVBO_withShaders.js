@@ -57,6 +57,8 @@ function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices, light
     if(this.lightSpec == 3 || this.lightSpec == 5){
         this.materialCode = materialCode;
         this.g_lamp0 = new LightsT(); //world-light
+        this.g_lamp1 = new LightsT(); // another light source
+
         // this.g_matlSel= MATL_RED_PLASTIC;	
         this.g_matl0 = new Material();
         if(materialCode != null){
@@ -219,6 +221,19 @@ VBO_genetic.prototype.init = function(){
             return;
         }
     }
+
+    // * [Second] Lamp
+    if(this.lightSpec == 3){
+        this.g_lamp1.u_pos  = gl.getUniformLocation(this.shaderLoc,  'u_LampSet[1].pos');
+        this.g_lamp1.u_ambi  = gl.getUniformLocation(this.shaderLoc, 'u_LampSet[1].ambi');
+        this.g_lamp1.u_diff = gl.getUniformLocation(this.shaderLoc,  'u_LampSet[1].diff');
+        this.g_lamp1.u_spec = gl.getUniformLocation(this.shaderLoc,	 'u_LampSet[1].spec');
+        if( !this.g_lamp1.u_pos || !this.g_lamp1.u_ambi ||!this.g_lamp1.u_diff ||!this.g_lamp1.u_spec) {
+            console.log('Failed to get the Lamp0 storage locations');
+            return;
+        }
+    }
+
     // * [Fog] color/distance
     if(this.lightSpec == 4){
         this.u_FogColor = gl.getUniformLocation(gl.program, 'u_FogColor');
@@ -296,6 +311,17 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         gl.uniform3fv(this.g_lamp0.u_diff, this.g_lamp0.I_diff.elements);		// diffuse
         gl.uniform3fv(this.g_lamp0.u_spec, this.g_lamp0.I_spec.elements);		// Specular
       
+        
+        this.g_lamp1.I_pos.elements.set([0.0, 6.0, 0.0]);
+        this.g_lamp1.I_ambi.elements.set([0.4, 0.4, 0.4]);
+        this.g_lamp1.I_diff.elements.set([1.0, 1.0, 1.0]);
+        this.g_lamp1.I_spec.elements.set([1.0, 1.0, 1.0]);
+        gl.uniform3fv(this.g_lamp1.u_pos,  this.g_lamp1.I_pos.elements.slice(0,3));
+        gl.uniform3fv(this.g_lamp1.u_ambi, this.g_lamp1.I_ambi.elements);		// ambient
+        gl.uniform3fv(this.g_lamp1.u_diff, this.g_lamp1.I_diff.elements);		// diffuse
+        gl.uniform3fv(this.g_lamp1.u_spec, this.g_lamp1.I_spec.elements);		// Specular
+
+
         gl.uniform3fv(this.g_matl0.uLoc_Ke, this.g_matl0.K_emit.slice(0,3));				// Ke emissive
         gl.uniform3fv(this.g_matl0.uLoc_Ka, this.g_matl0.K_ambi.slice(0,3));				// Ka ambient
         gl.uniform3fv(this.g_matl0.uLoc_Kd, this.g_matl0.K_diff.slice(0,3));				// Kd	diffuse
