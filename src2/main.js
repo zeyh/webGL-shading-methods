@@ -1,4 +1,11 @@
 /*
+Dec 7, 2020
+References: besides the inline links in index.html, the code is modified from 
+    [Textbook Chapter 8,9,10] Fog.js, LightedCube.js, PointLightedCube.js, 2012 matsuda and kanda
+    [Canvas ProjC Page] JT_VBObox-lib.js, JTSecondLight_perFragment.js, JTPointBlinnPhongSphere_perFragment.js
+    [Previous projects] ProjectA, ProjectB
+*/
+/*
   Done: individual VBO
   Done: Ground-Plane vs Grid?
   Done: 3D View Control: z-up? really??
@@ -12,21 +19,25 @@
   Done: Add on screen instructions for each lighting scheme/ available keyboard/mouse interation options
   Done: Gouraud Shading
   Done: combine to get the 4 methods👇
-
-  🚩lighting/shading methods*4👇
+  ✨lighting/shading methods*4👇
   100%: Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
   100%: Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
   100%: Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
   100%: Blinn-Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
 
-* Almost: user-selected distance dependencies??? does Foggy effect count?
 
-! TODO: 0. [setting with clearDrag @ htmlCallBack.js] lighting change with object movement...😠 .. 
-! TODO: 3. non-directional light source (headlight) on/off
+! Bug🐞: 0. [setting with clearDrag @ htmlCallBack.js] lighting change with object movement...😠 
+
+! TODO: 1. add second light switch on/off
+! TODO: 2. usercontrol:
+            world-space position, 
+            switch light on/off,
+            set separate R,G,B values for each of the ambient, diffuse, and specular light amount
 ! TODO: 4. Simple Texture Maps emmisive
-! TODO: 5. geometric shape distortions in shaders???
 
-
+! future work😐: user-selected distance dependencies??? does Foggy effect count for 1/3?
+! future work😠: modify [shaderinfo.js] and the [shadingScheme] object to be less repetitive...
+! future work😐: geometric shape distortions in shaders???
 */
 
 "use strict"
