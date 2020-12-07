@@ -10,21 +10,23 @@
   Done: Assign different looking phong material to 3+ object
   Done: Rearrange Objects + 3 solid jointed obj 
   Done: Add on screen instructions for each lighting scheme/ available keyboard/mouse interation options
+  Done: Gouraud Shading
+  Done: combine to get the 4 methods👇
+
+  🚩lighting/shading methods*4👇
+  100%: Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
+  100%: Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
+  100%: Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
+  100%: Blinn-Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
+
 * Almost: user-selected distance dependencies??? does Foggy effect count?
 
-
-! TODO: 0. lighting change with object movement...😠 .. something messing with modelMatrix...
-? Doing 1. Gouraud Shading
-! TODO: 2. combine to get the 4 methods👇
+! TODO: 0. [setting with clearDrag @ htmlCallBack.js] lighting change with object movement...😠 .. 
 ! TODO: 3. non-directional light source (headlight) on/off
 ! TODO: 4. Simple Texture Maps emmisive
 ! TODO: 5. geometric shape distortions in shaders???
 
-! lighting/shading methods*4👇
-! 70%: Phong lighting with Phong Shading, (no half-angles; uses true reflection angle)
-  100%: Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
-  100%: Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
-! 30%: Blinn-Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
+
 */
 
 "use strict"
@@ -92,7 +94,8 @@ function main() {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Set blending function conflict with shadow...?
     g_modelMatrix = new Matrix4(); 
 
-    shadingScheme = { //[plane, cube, cube2, sphere, sphere2, cube3]
+    // TODO: maybe a better way to structure this...
+    shadingScheme = { //[plane, cube, cube2, sphere, sphere2, cube3] 
         0:[
             [draggableBlinnPhongVert,draggableBlinnPhongFrag,3], // [vert, frag shader, light Spec, material code]
             [draggableBlinnPhongVert,draggableBlinnPhongFrag,3], // ! all material applied & interations
@@ -102,30 +105,22 @@ function main() {
             [draggableBlinnPhongVert,draggableBlinnPhongFrag,3]
         ],
         1:[
-            [blinnphongVert,blinnphongFrag,2], // ! Blinn-Phong lighting with Phong Shading (requires ‘half-angle’, not reflection angle)
-            [blinnphongVert,blinnphongFrag,2],
-            [blinnphongVert,blinnphongFrag,2],
-            [blinnphongVert,blinnphongFrag,2],
-            [blinnphongVert,blinnphongFrag,2],
-            [blinnphongVert,blinnphongFrag,2],
+            [PhongPhongVert,PhongPhongFrag,5], // ! Phong Shading & Phong Lighting
+            [PhongPhongVert,PhongPhongFrag,5],
+            [PhongPhongVert,PhongPhongFrag,5],
+            [PhongPhongVert,PhongPhongFrag,5],
+            [PhongPhongVert,PhongPhongFrag,5],
+            [PhongPhongVert,PhongPhongFrag,5],
         ],
         2:[
-            [testVert,testFrag,5], // ! Phong shading & lighting
-            [testVert,testFrag,5],
-            [testVert,testFrag,5],
-            [testVert,testFrag,5],
-            [testVert,testFrag,5],
-            [testVert,testFrag,5],
+            [gouraudPhongVert,gouraudPhongFrag,5], // ! Gouraud Shading & Phong Lighting
+            [gouraudPhongVert,gouraudPhongFrag,5],
+            [gouraudPhongVert,gouraudPhongFrag,5],
+            [gouraudPhongVert,gouraudPhongFrag,5],
+            [gouraudPhongVert,gouraudPhongFrag,5],
+            [gouraudPhongVert,gouraudPhongFrag,5],
         ],
         3:[
-            [gouraudVert,gouraudFrag,1], //maybe a better way to structure this...
-            [gouraudVert,gouraudFrag,1], // ! Phong lighting with Gouraud Shading (computes colors per vertex; interpolates color only)
-            [gouraudVert,gouraudFrag,1],
-            [gouraudVert,gouraudFrag,1],
-            [gouraudVert,gouraudFrag,1],
-            [gouraudVert,gouraudFrag,1]
-        ],
-        4:[
             [fogVert,fogFrag,4], // ! distance dependent
             [fogVert,fogFrag,4],
             [fogVert,fogFrag,4],
@@ -133,9 +128,28 @@ function main() {
             [fogVert,fogFrag,4],
             [fogVert,fogFrag,4],
         ],
+        4:[
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],  // ! Phong Shading & Blinn Phong Lighting
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+            [draggableBlinnPhongVert,draggableBlinnPhongFrag,5],
+        ],
+        5:[
+            [gouraudBlinnVert,gouraudBlinnFrag,5], 
+            [gouraudBlinnVert,gouraudBlinnFrag,5], // ! Gouraud Shading & Blinn Phong Lighting
+            [gouraudBlinnVert,gouraudBlinnFrag,5],
+            [gouraudBlinnVert,gouraudBlinnFrag,5],
+            [gouraudBlinnVert,gouraudBlinnFrag,5],
+            [gouraudBlinnVert,gouraudBlinnFrag,5]
+        ],
     };
+
     // ! scheme selection
     controlScheme(); //get the slider responsive
+    controlSwitch(); //set the switch
+    controlSwitch2();
 
     var tick = function () {
         canvas.width = window.innerWidth * 1; //resize canvas

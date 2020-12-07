@@ -60,7 +60,6 @@ function VBO_genetic(vertSrc, fragSrc, vertices, colors, normals, indices, light
         // this.g_matlSel= MATL_RED_PLASTIC;	
         this.g_matl0 = new Material();
         if(materialCode != null){
-            console.log(materialCode,"!!")
             this.g_matl0.setMatl(materialCode);	
         }else{
             this.g_matl0.setMatl(g_matlSel);	
@@ -306,7 +305,7 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
     if(this.lightSpec == 5){
         // * [eye] position world
         var	eyePosWorld = new Float32Array(3);	// x,y,z in world coords
-        eyePosWorld.set([6.0, 2.0, 5.0]);
+        eyePosWorld.set([-3.0, 3.0, 5.0]);
         gl.uniform3fv(this.u_eyePosWorld, eyePosWorld);
 
         // * [Material]
@@ -315,8 +314,8 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         }
 
         // * [Lamp]
-        this.g_lamp0.I_pos.elements.set( [3.0, 5.0, 5.0]);
-        this.g_lamp0.I_ambi.elements.set([0.4, 0.4, 0.4]);
+        this.g_lamp0.I_pos.elements.set( [-3.0, 5.0, 8.0]);
+        this.g_lamp0.I_ambi.elements.set([0.6, 0.6, 0.6]);
         this.g_lamp0.I_diff.elements.set([1.0, 1.0, 1.0]);
         this.g_lamp0.I_spec.elements.set([1.0, 1.0, 1.0]);
 

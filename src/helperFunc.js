@@ -85,7 +85,7 @@ function animateJoints2() {
     return newAngle;
 }
 
-var ANGLE_STEP = 40;   // The increments of rotation angle (degrees)
+var ANGLE_STEP = 50;   // The increments of rotation angle (degrees)
 var last = Date.now(); // Last time that this function was called
 function animate(angle) {
     var now = Date.now();   // Calculate the elapsed time
