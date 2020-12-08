@@ -25,6 +25,7 @@ function controlScheme(){
     var underline = function(){
         var currSelectionValue = slider.value;
         g_schemeOpt = currSelectionValue; // ! update shading scheme
+        // setControlPanel();
         initVBOs(shadingScheme[g_schemeOpt]); // ! update all VBO associated w/ the shading scheme
         var currStyle = optionText[currSelectionValue].style;
         var currInstructionStyle = instructions[currSelectionValue].style;
@@ -78,6 +79,72 @@ function controlSwitch2(){
     }
 }
 
+var isHeadlight = false;
+function controlSwitch3(){
+    var currSwitch = document.getElementById("headlightSwitch");
+    var watchSwitch3 = function(){
+        isHeadlight = !isHeadlight;
+        document.getElementById('headlightSwitchText').textContent = isHeadlight ? "off" : "on";
+        initVBOs(shadingScheme[g_schemeOpt]); //refresh vbo rendering
+    }
+    currSwitch.oninput = function(){ //keep listening slider input change
+        watchSwitch3();
+    }
+}
+
+var isplight = true;
+function controlSwitch4(){
+    var currSwitch = document.getElementById("plightSwitch");
+    var watchSwitch4 = function(){
+        isplight = !isplight;
+        document.getElementById('plightSwitchText').textContent = isplight ? "off" : "on";
+        initVBOs(shadingScheme[g_schemeOpt]); //refresh vbo rendering
+    }
+    currSwitch.oninput = function(){ //keep listening slider input change
+        watchSwitch4();
+    }
+}
+
+var reflectVal = [0,0,0,0];
+var slider = document.querySelectorAll(".minislider");
+var sliderText = document.querySelectorAll(".miniSliderText");
+function setSlider(index){
+    if(index != 3){ //fix width
+        reflectVal[index] = (Math.round(slider[index].value * 100) / 100).toFixed(2);;
+    }else{
+        reflectVal[index] = slider[index].value;
+    }
+    sliderText[index].textContent = reflectVal[index];
+}
+
+var colors = [];
+var colorSlider = document.querySelectorAll(".colorPicker");
+colorSlider.forEach(elem => {
+    colors.push(hexToRgb(elem.value)); //get the default
+})
+function setColorSlider(index){
+    colors[index] = hexToRgb(colorSlider[index].value);
+    console.log(colors[index]);
+}
+
+//https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+function hexToRgb(hex) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+      return r + r + g + g + b + b;
+    });
+  
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
+  
+
+
 // ===================================for dat-gui setup
 var params = { 
     left: -1.00,
@@ -99,54 +166,36 @@ view.use_frustum = false;
 view.fly = false;
 var guileft, guiright, guitop, guibottom, guinear, guifar;
 var guiArr_frustum, guiArr_fly;
+var gui;
 function setControlPanel() {
-    var gui = new dat.GUI();
-    //text
-    var sampleText = function () {
-        this.use_perspective = "plz use keyboard control⌨️ ";
-        this.color = "#ff0000";
-        this.fontSize = 24;
-        this.border = false;
-        this.fontFamily = "sans-serif";
-    };
-    var text = new sampleText();
-    gui.add(text, 'use_perspective')
-
-    //frustrum controller
-    var frustrumController = gui.add(view, 'use_frustum').listen();
-    guileft = gui.add(params, 'left', -2.00, 0.00);
-    guiright = gui.add(params, 'right', 0.00, 2.00);
-    guitop = gui.add(params, 'top', -2.00, 0.00);
-    guibottom = gui.add(params, 'bottom', 0.00, 2.00);
-    guinear = gui.add(params, 'near', 0.10, 4.00);
-    guifar = gui.add(params, 'far', 5, 150);
-    guiArr_frustum = [guileft, guiright, guitop, guibottom, guinear, guifar];
-    disableGui(guiArr_frustum); //by default
-    frustrumController.onChange(function (value) {
-        isFrustrum = value
-        if (!isFrustrum) {
-            disableGui(guiArr_frustum);
+    if(g_schemeOpt == 0){
+        gui = new dat.GUI();
+        //frustrum controller
+        var frustrumController = gui.add(view, 'use_frustum').listen();
+        guileft = gui.add(params, 'left', -2.00, 0.00);
+        guiright = gui.add(params, 'right', 0.00, 2.00);
+        guitop = gui.add(params, 'top', -2.00, 0.00);
+        guibottom = gui.add(params, 'bottom', 0.00, 2.00);
+        guinear = gui.add(params, 'near', 0.10, 4.00);
+        guifar = gui.add(params, 'far', 5, 150);
+        guiArr_frustum = [guileft, guiright, guitop, guibottom, guinear, guifar];
+        disableGui(guiArr_frustum); //by default
+        frustrumController.onChange(function (value) {
+            isFrustrum = value
+            if (!isFrustrum) {
+                disableGui(guiArr_frustum);
+            }
+            else {
+                enableGui(guiArr_frustum);
+            }
+        });
+    }
+    else{
+        if(gui){
+            gui.close();
         }
-        else {
-            enableGui(guiArr_frustum);
-        }
-    });
-    //fly
-    var flyController = gui.add(view, 'fly').listen();
-    guiFly1 = gui.add(params_fly, 'turning_angle', -1.00, 1.00);
-    guiFly2 = gui.add(params_fly, 'up_down', -1.00, 1.00);
-    guiFly3 = gui.add(params_fly, 'speed', -0.50, 1.00);
-    guiArr_fly = [guiFly1, guiFly2, guiFly3];
-    disableGui(guiArr_fly); //by default
-    flyController.onChange(function (value) {
-        isFly = value
-        if (!isFly) {
-            disableGui(guiArr_fly);
-        }
-        else {
-            enableGui(guiArr_fly);
-        }
-    });
+    }
+    
 }
 function disableGui(arr) {
     for (let i = 0; i < arr.length; i++) {
@@ -321,6 +370,8 @@ function clearDrag() {
     // Called when user presses 'Clear' button in our webpage
     g_xMdragTot = 0.0;
     g_yMdragTot = 0.0;
+    g_lamp0PosY = 5.0;
+    g_lamp0PosZ = 5.0;
 }
 
 function mouseWheel(en) {

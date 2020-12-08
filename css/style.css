@@ -1,0 +1,343 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    /* Hide scrollbars */
+}
+
+.arrow {
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+}
+
+.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+}
+
+.up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+}
+
+.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+
+.buttons {
+    margin-left: 5%;
+    margin-top: 22px;
+}
+
+button {
+    padding: 10px 13px;
+    border: 1px solid white;
+    border-radius: 5px;
+    font-family: "Crimson Text", serif;
+    text-align: center;
+    background-color: transparent;
+    opacity: 0.6;
+    cursor: pointer;
+    color: white;
+    margin-right: 14px;
+}
+
+button:hover {
+    opacity: 0.8;
+    transition: 0.3s;
+    text-shadow: 3px 3px 3px rgb(211, 210, 210);
+}
+
+.info {
+    background: url("mat/bg2.jpg");
+    margin: 0;
+    height: 30%;
+}
+
+/*slider https://www.w3schools.com/howto/howto_js_rangeslider.asp  */
+.slidecontainer {
+    width: 90%;
+    /* Width of the outside container */
+    margin-left: 5%;
+    margin-right: 5%;
+    padding-top: 2%;
+}
+
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.4;
+    -webkit-transition: 0.2s;
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #424242;
+    cursor: pointer;
+}
+
+.optionsDiv {
+    color: #ffffff;
+    opacity: 0.9;
+    margin-top: 10pt;
+}
+
+.options-title {
+    font-family: "Comfortaa", cursive;
+    margin-right: 10px;
+}
+
+.options {
+    font-family: "Crimson Text", serif;
+    position: relative;
+    margin-right: 2%;
+    margin-left: 2%;
+    font-size: 15pt;
+}
+
+.options::before {
+    /* https://tobiasahlin.com/blog/css-trick-animating-link-underlines/ */
+    visibility: var(--isVisible);
+    content: "";
+    display: inline-block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #ffffff;
+    transform: var(--animationFcn);
+    transition: all 0.3s ease-in-out 0s;
+}
+.instructions {
+    color: white;
+    opacity: 0.8;
+    margin-left: 5%;
+    font-family: "Comfortaa", cursive;
+    font-weight: 300;
+}
+.instructions p {
+    float: right;
+    position: relative;
+    left: 0;
+}
+.general_info {
+    color: white;
+    opacity: 0.8;
+    margin-right: 5%;
+    font-family: "Comfortaa", cursive;
+    float: right;
+    position: absolute;
+    bottom: 3%;
+    right: 0%;
+    font-weight: 300;
+}
+.general_info p {
+    text-align: right;
+    font-size: 11pt;
+    margin: 0;
+}
+.dynamicInstruction {
+    font-family: "Comfortaa", cursive;
+    color: white;
+    font-weight: 300;
+    visibility: var(--isVisible1);
+    transform: var(--animationFcn1);
+    transition: all 0.3s ease-in-out 0s;
+    margin-left: 5%;
+    position: absolute;
+    top: 2%;
+    right: 5%;
+    text-align: right;
+}
+.dynamicInstruction p {
+    line-height: 10px;
+}
+#deco1 {
+    position: absolute;
+    font-weight: 700;
+    color: white;
+    font-size: 30pt;
+    top: 0.5%;
+    left: 0%;
+}
+#deco2 {
+    position: absolute;
+    font-weight: 700;
+    color: white;
+    font-size: 30pt;
+    bottom: 0.5%;
+    right: 0%;
+}
+.switch {
+    /* https://www.w3schools.com/howto/howto_css_switch.asp */
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    position: relative;
+    top: 5%;
+    right: 1%;
+    cursor: pointer;
+    opacity: 0.8;
+    margin-left:15px;
+}
+.switch:hover{
+    transition: 0.3s;
+    opacity:1;
+}
+.switchInfo{
+    float:left;
+    margin-left: 190px;
+    margin-top: 14px;
+}
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+/* The slider */
+.sliderBox {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color:#67480b84;
+    opacity: 0.6;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+.sliderBox:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+input:checked + .sliderBox {
+    background-color: #0d4a7d84;
+    opacity: 0.6;
+}
+
+input:focus + .sliderBox {
+    box-shadow: 0 0 1px #08747684;
+    opacity: 0.6;
+}
+
+input:checked + .sliderBox:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.sliderBox.round {
+    border-radius: 34px;
+}
+
+.sliderBox.round:before {
+    border-radius: 50%;
+}
+.dynamicInstruction span{
+    font-weight: 700;
+    text-decoration: underline;
+    font-family: "Crimson Text", serif;
+    font-size: 16pt;
+}
+.dynamicInstruction strong{
+    font-weight: 300;
+}
+
+.smallSlider input{
+    opacity: 0.8;
+}
+.smallSlider span{
+    font-size:12pt;
+    font-weight: 300;
+    text-decoration: none;
+    float:left;
+    margin-right: 5pt;
+    display: inline-block;
+}
+.colorPicker{
+    border: none;
+    width: 15pt;
+    height: 15pt;
+    opacity: 0.6;
+    cursor: pointer;
+    display: inline-block;
+    float:right;
+    margin-left:5pt;
+}
+.colorPicker:hover{
+    opacity: 1;
+    transition: 0.3s;
+}
+.minislider{
+    display: inline-block;
+
+}
+#dynamicInstruction0{
+    transform: scale(0.8);
+    margin-top: -2%;
+    margin-right: -5%;
+}
+.smallSlider{
+    /* width:30%; */
+    float: right;
+    text-align: left;
+    vertical-align: right;
+}
+.primaryLightOptions{
+    overflow: auto;
+    padding:10px;
+    border: 1px solid white;
+}
+#headlightp{
+    margin-left: 180pt !important;
+}
+.miniSliderText{
+    font-variant-numeric: tabular-nums lining-nums; /* todo: ideally should be monotinic font */
+    font-family: 'Roboto Mono', monospace;
+}

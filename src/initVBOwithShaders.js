@@ -295,38 +295,48 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         }
 
         // * [Lamp] & [Mouse Drag]
-        if(g_lamp0PosY != undefined && g_lamp0PosZ != undefined){ //TODO: somehow unable to change directly in mouseMove(ev)
-            this.g_lamp0.I_pos.elements[1] += g_lamp0PosY;
-            this.g_lamp0.I_pos.elements[2] += g_lamp0PosZ;
+        // if(g_lamp0PosY != undefined && g_lamp0PosZ != undefined){ //TODO: somehow unable to change directly in mouseMove(ev)
+        //     this.g_lamp0.I_pos.elements[1] += g_lamp0PosY;
+        //     this.g_lamp0.I_pos.elements[2] += g_lamp0PosZ;
 
-        }else{
+        // }else{
+        //     this.g_lamp0.I_pos.elements.set( [6.0, 5.0, 5.0]);
+        // }
+        if(isplight){
             this.g_lamp0.I_pos.elements.set( [6.0, 5.0, 5.0]);
+            this.g_lamp0.I_ambi.elements.set([0.4, 0.4, 0.4]);
+            this.g_lamp0.I_diff.elements.set([1.0, 1.0, 1.0]);
+            this.g_lamp0.I_spec.elements.set([1.0, 1.0, 1.0]);
+    
+            gl.uniform3fv(this.g_lamp0.u_pos,  this.g_lamp0.I_pos.elements.slice(0,3));
+            gl.uniform3fv(this.g_lamp0.u_ambi, this.g_lamp0.I_ambi.elements);		// ambient
+            gl.uniform3fv(this.g_lamp0.u_diff, this.g_lamp0.I_diff.elements);		// diffuse
+            gl.uniform3fv(this.g_lamp0.u_spec, this.g_lamp0.I_spec.elements);		// Specular
         }
-        this.g_lamp0.I_ambi.elements.set([0.4, 0.4, 0.4]);
-        this.g_lamp0.I_diff.elements.set([1.0, 1.0, 1.0]);
-        this.g_lamp0.I_spec.elements.set([1.0, 1.0, 1.0]);
 
-        gl.uniform3fv(this.g_lamp0.u_pos,  this.g_lamp0.I_pos.elements.slice(0,3));
-        gl.uniform3fv(this.g_lamp0.u_ambi, this.g_lamp0.I_ambi.elements);		// ambient
-        gl.uniform3fv(this.g_lamp0.u_diff, this.g_lamp0.I_diff.elements);		// diffuse
-        gl.uniform3fv(this.g_lamp0.u_spec, this.g_lamp0.I_spec.elements);		// Specular
       
-        
-        this.g_lamp1.I_pos.elements.set([0.0, 6.0, 0.0]);
-        this.g_lamp1.I_ambi.elements.set([0.4, 0.4, 0.4]);
-        this.g_lamp1.I_diff.elements.set([1.0, 1.0, 1.0]);
-        this.g_lamp1.I_spec.elements.set([1.0, 1.0, 1.0]);
-        gl.uniform3fv(this.g_lamp1.u_pos,  this.g_lamp1.I_pos.elements.slice(0,3));
-        gl.uniform3fv(this.g_lamp1.u_ambi, this.g_lamp1.I_ambi.elements);		// ambient
-        gl.uniform3fv(this.g_lamp1.u_diff, this.g_lamp1.I_diff.elements);		// diffuse
-        gl.uniform3fv(this.g_lamp1.u_spec, this.g_lamp1.I_spec.elements);		// Specular
+        if(isHeadlight){
+            this.g_lamp1.I_pos.elements.set([0.0, 6.0, 0.0]);
+            this.g_lamp1.I_ambi.elements.set([0.4, 0.4, 0.4]);
+            this.g_lamp1.I_diff.elements.set([1.0, 1.0, 1.0]);
+            this.g_lamp1.I_spec.elements.set([1.0, 1.0, 1.0]);
+            gl.uniform3fv(this.g_lamp1.u_pos,  this.g_lamp1.I_pos.elements.slice(0,3));
+            gl.uniform3fv(this.g_lamp1.u_ambi, this.g_lamp1.I_ambi.elements);		// ambient
+            gl.uniform3fv(this.g_lamp1.u_diff, this.g_lamp1.I_diff.elements);		// diffuse
+            gl.uniform3fv(this.g_lamp1.u_spec, this.g_lamp1.I_spec.elements);		// Specular
+        }
 
 
         gl.uniform3fv(this.g_matl0.uLoc_Ke, this.g_matl0.K_emit.slice(0,3));				// Ke emissive
         gl.uniform3fv(this.g_matl0.uLoc_Ka, this.g_matl0.K_ambi.slice(0,3));				// Ka ambient
         gl.uniform3fv(this.g_matl0.uLoc_Kd, this.g_matl0.K_diff.slice(0,3));				// Kd	diffuse
         gl.uniform3fv(this.g_matl0.uLoc_Ks, this.g_matl0.K_spec.slice(0,3));				// Ks specular
-        gl.uniform1i(this.g_matl0.uLoc_Kshiny, parseInt(this.g_matl0.K_shiny, 10)); 
+        
+        //set default shiness
+        let shinessVal = parseInt(this.g_matl0.K_shiny, 10)+parseInt(reflectVal[3]);
+        shinessVal = shinessVal > 0 ? shinessVal : 1;
+        gl.uniform1i(this.g_matl0.uLoc_Kshiny, shinessVal); 
+        
     }
     if(this.lightSpec == 5){
         // * [eye] position world
