@@ -295,6 +295,7 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         }
 
         // * [Lamp] & [Mouse Drag]
+        
         // if(g_lamp0PosY != undefined && g_lamp0PosZ != undefined){ //TODO: somehow unable to change directly in mouseMove(ev)
         //     this.g_lamp0.I_pos.elements[1] += g_lamp0PosY;
         //     this.g_lamp0.I_pos.elements[2] += g_lamp0PosZ;
@@ -303,10 +304,25 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         //     this.g_lamp0.I_pos.elements.set( [6.0, 5.0, 5.0]);
         // }
         if(isplight){
-            this.g_lamp0.I_pos.elements.set( [6.0, 5.0, 5.0]);
-            this.g_lamp0.I_ambi.elements.set([0.4, 0.4, 0.4]);
-            this.g_lamp0.I_diff.elements.set([1.0, 1.0, 1.0]);
-            this.g_lamp0.I_spec.elements.set([1.0, 1.0, 1.0]);
+            if(g_isDrag){
+                prevY = this.g_lamp0.I_pos.elements[1] + g_lamp0PosY;
+                prevZ = this.g_lamp0.I_pos.elements[2] + g_lamp0PosZ;
+            }
+
+            if(prevY != undefined && prevZ != undefined && !isNaN(prevY) && !isNaN(prevZ)){ 
+                this.g_lamp0.I_pos.elements[1] = prevY;
+                this.g_lamp0.I_pos.elements[2] = prevZ;
+            }
+            else{
+                this.g_lamp0.I_pos.elements.set( [6.0, 5.0, 5.0]);
+            }
+            //set RGB
+            let ambiVal = parseFloat(reflectVal[0]).toFixed(2);
+            let diffVal = parseFloat(reflectVal[1]).toFixed(2);
+            let specVal = parseFloat(reflectVal[2]).toFixed(2);
+            this.g_lamp0.I_ambi.elements.set([ambiVal, ambiVal, ambiVal]);
+            this.g_lamp0.I_diff.elements.set([diffVal, diffVal, diffVal]);
+            this.g_lamp0.I_spec.elements.set([specVal, specVal, specVal]);
     
             gl.uniform3fv(this.g_lamp0.u_pos,  this.g_lamp0.I_pos.elements.slice(0,3));
             gl.uniform3fv(this.g_lamp0.u_ambi, this.g_lamp0.I_ambi.elements);		// ambient
@@ -327,10 +343,26 @@ VBO_genetic.prototype.switchToMe = function () { //similar to previous set-up fo
         }
 
 
-        gl.uniform3fv(this.g_matl0.uLoc_Ke, this.g_matl0.K_emit.slice(0,3));				// Ke emissive
-        gl.uniform3fv(this.g_matl0.uLoc_Ka, this.g_matl0.K_ambi.slice(0,3));				// Ka ambient
-        gl.uniform3fv(this.g_matl0.uLoc_Kd, this.g_matl0.K_diff.slice(0,3));				// Kd	diffuse
-        gl.uniform3fv(this.g_matl0.uLoc_Ks, this.g_matl0.K_spec.slice(0,3));				// Ks specular
+        gl.uniform3fv(this.g_matl0.uLoc_Ke, this.g_matl0.K_emit.slice(0,3));	
+        
+        if(colors[0][0] == 0 && colors[0][1] == 0 && colors[0][2] == 0){ //if RGB is default black
+            gl.uniform3fv(this.g_matl0.uLoc_Ka, this.g_matl0.K_ambi.slice(0,3));				// Ka ambient
+        }else{
+            gl.uniform3fv(this.g_matl0.uLoc_Ka, colors[0]);
+        }
+        if(colors[1][0] == 0 && colors[1][1] == 0 && colors[1][2] == 0){ //if RGB is default black
+            gl.uniform3fv(this.g_matl0.uLoc_Kd, this.g_matl0.K_diff.slice(0,3));				// Kd	diffuse
+        }else{
+            gl.uniform3fv(this.g_matl0.uLoc_Kd, colors[1]);
+        }
+        if(colors[2][0] == 0 && colors[2][1] == 0 && colors[2][2] == 0){ //if RGB is default black
+            gl.uniform3fv(this.g_matl0.uLoc_Ks, this.g_matl0.K_spec.slice(0,3));				// Ks specular
+        }else{
+            gl.uniform3fv(this.g_matl0.uLoc_Ks, colors[2]);				// Ks specular
+        }
+        // gl.uniform3fv(this.g_matl0.uLoc_Ka, this.g_matl0.K_ambi.slice(0,3));				// Ka ambient
+        // gl.uniform3fv(this.g_matl0.uLoc_Kd, this.g_matl0.K_diff.slice(0,3));				// Kd	diffuse
+        // gl.uniform3fv(this.g_matl0.uLoc_Ks, this.g_matl0.K_spec.slice(0,3));				// Ks specular
         
         //set default shiness
         let shinessVal = parseInt(this.g_matl0.K_shiny, 10)+parseInt(reflectVal[3]);

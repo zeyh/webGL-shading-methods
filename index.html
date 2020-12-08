@@ -76,7 +76,8 @@
                 </label>
                 <!--p><span>Mouse drag</span> to change the world light position</p -->
                 <p>Press <span>m</span> key to change material of the central sphere</p>
-
+                <p> <span>Mouse drag</span> on left part of screen to change primary light position </p>
+                <p>(Note: it might be dragged behind)</p>
                 <div class="primaryLightOptions">
                     <div>
                         <p class="switchInfo" id="plightp"> <span>Turn</span> <strong id="plightSwitchText">off</strong> primary light 💡</p>
@@ -87,30 +88,34 @@
                     </div>
                     <div class="smallSlider">
                         <div>
-                            <span>Set Ambient</span>
+                            <span>Set Ambient Reflection</span>
                             <input
-                                type="range" step="0.01" min="0" max="1" class="minislider"
-                                value="0"  id="AmbientVal" oninput="setSlider(0)"
-                            />  <strong class="miniSliderText">0.00</strong>
-                            <input type="color" id="AmbientColor" class="colorPicker" value="#0000ff" oninput="setColorSlider(0)" >
+                                type="range" step="0.01" min="0.00" max="1.00" class="minislider"
+                                value="0.40"  id="AmbientVal" oninput="setSlider(0)"
+                            />  <strong class="miniSliderText">0.40</strong>
+                            <em>set color:</em>
+                            <input type="color" id="AmbientColor" class="colorPicker" value="#000000" oninput="setColorSlider(0)" >
                             
                         </div>
                         <div>
                             <input
-                                type="range" step="0.01" min="0" max="1" class="minislider"
-                                value="0"  id="DiffuseVal" oninput="setSlider(1)"
-                            /> <strong class="miniSliderText">0.00</strong>
-                            <input type="color" id="DiffuseColor" class="colorPicker" value="#0000ff" oninput="setColorSlider(1)" > 
-                            <span>Set Diffuse &nbsp  </span>
+                                type="range" step="0.01" min="0.00" max="1.00" class="minislider"
+                                value="1.00"  id="DiffuseVal" oninput="setSlider(1)"
+                            /> <strong class="miniSliderText">1.00</strong>
+                            <em>set color:</em>
+                            <input type="color" id="DiffuseColor" class="colorPicker" value="#000000" oninput="setColorSlider(1)" > 
+                            <span>Set Diffuse Reflection &nbsp  </span>
                         </div>
                         <div>
                             <input
-                                type="range" step="0.01" min="0" max="1" class="minislider"
-                                value="0"  id="SpecularVal" oninput="setSlider(2)"
-                            />  <strong class="miniSliderText">0.00</strong>
-                            <input type="color" id="SpecularColor" class="colorPicker" value="#0000ff" oninput="setColorSlider(2)" >
-                            <span>Set Specular</span>
+                                type="range" step="0.01" min="0.00" max="1.00" class="minislider"
+                                value="1.00"  id="SpecularVal" oninput="setSlider(2)"
+                            />  <strong class="miniSliderText">1.00</strong>
+                            <em>set color:</em>
+                            <input type="color" id="SpecularColor" class="colorPicker" value="#000000" oninput="setColorSlider(2)" >
+                            <span>Set Specular Reflection</span>
                         </div>
+                        <p id="note">Note: set all color to RGB(0,0,0) can reverse to default.</p>
                         <div>
                             <input
                                 type="range" step="1" min="-20" max="80" class="minislider"

@@ -86,6 +86,8 @@ function controlSwitch3(){
         isHeadlight = !isHeadlight;
         document.getElementById('headlightSwitchText').textContent = isHeadlight ? "off" : "on";
         initVBOs(shadingScheme[g_schemeOpt]); //refresh vbo rendering
+        console.log(isHeadlight, "headlight");
+        console.log(isplight, "world light");
     }
     currSwitch.oninput = function(){ //keep listening slider input change
         watchSwitch3();
@@ -99,13 +101,17 @@ function controlSwitch4(){
         isplight = !isplight;
         document.getElementById('plightSwitchText').textContent = isplight ? "off" : "on";
         initVBOs(shadingScheme[g_schemeOpt]); //refresh vbo rendering
+        console.log(isHeadlight, "headlight");
+        console.log(isplight, "world light");
     }
     currSwitch.oninput = function(){ //keep listening slider input change
         watchSwitch4();
     }
 }
 
-var reflectVal = [0,0,0,0];
+
+
+var reflectVal = [0.4,1.0,1.0,0];
 var slider = document.querySelectorAll(".minislider");
 var sliderText = document.querySelectorAll(".miniSliderText");
 function setSlider(index){
@@ -120,11 +126,14 @@ function setSlider(index){
 var colors = [];
 var colorSlider = document.querySelectorAll(".colorPicker");
 colorSlider.forEach(elem => {
-    colors.push(hexToRgb(elem.value)); //get the default
-})
+    let tmp = hexToRgb(elem.value);
+    colors.push([tmp.r/255, tmp.g/255, tmp.b/255]); //get the default
+    tmp = null;
+});
 function setColorSlider(index){
-    colors[index] = hexToRgb(colorSlider[index].value);
-    console.log(colors[index]);
+    let c = hexToRgb(colorSlider[index].value);
+    colors[index] = [c.r/255, c.g/255, c.b/255];
+    initVBOs(shadingScheme[g_schemeOpt]); //refresh vbo rendering
 }
 
 //https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
@@ -370,8 +379,8 @@ function clearDrag() {
     // Called when user presses 'Clear' button in our webpage
     g_xMdragTot = 0.0;
     g_yMdragTot = 0.0;
-    g_lamp0PosY = 5.0;
-    g_lamp0PosZ = 5.0;
+    g_lamp0PosY = 0.0;
+    g_lamp0PosZ = 0.0;
 }
 
 function mouseWheel(en) {
@@ -383,6 +392,7 @@ function mouseWheel(en) {
     }
 }
 
+var prevY, prevZ;
 function myMouseDown(ev) {
     var rect = ev.target.getBoundingClientRect();
     var xp = ev.clientX - rect.left;
@@ -392,15 +402,22 @@ function myMouseDown(ev) {
     var x = (xp - canvas.width / 2) / (canvas.width / 2);
     var y = (yp - canvas.height / 2) / (canvas.height / 2);
 
-    g_isDrag = true;
-    g_xMclik = x;
-    g_yMclik = y;
+    if( xp <= 500 && yp <= 600){ //dragging must be in correct place
+        g_isDrag = true;
+        // console.log("dragging",xp,yp )
+    }
+    // console.log("not",xp,yp )
+    // g_isDrag = true;
+    g_xMclik = x; 
+    g_yMclik = y; 
+    // console.log(yp); //(0-50)
 
 
 };
 
 var g_lamp0PosY, g_lamp0PosZ;
 var g_eyePosY, g_eyePosZ;
+var currLampPos;
 function myMouseMove(ev) {
     if (g_isDrag == false) return;
 
@@ -416,9 +433,14 @@ function myMouseMove(ev) {
     //     g_lamp0.I_pos.elements[1] + 4.0*(x-g_xMclik),	// Horiz drag: change world Y
     //     g_lamp0.I_pos.elements[2] + 4.0*(y-g_yMclik) 	// Vert. drag: change world Z
     // ]);
+    if(currLampPos){
+        currLampPos[1] = currLampPos[1] + 4.0*(x-g_xMclik);
+        currLampPos[2] = currLampPos[2] + 4.0*(y-g_yMclik);
+    }
 
-    g_lamp0PosY = 8.0*(x-g_xMclik);
-    g_lamp0PosZ = 8.0*(y-g_yMclik);
+    // console.log(currLampPos)
+    g_lamp0PosY = 4.0*(x-g_xMclik);
+    g_lamp0PosZ = 4.0*(y-g_yMclik);
     g_eyePosY = 8.0*(x-g_xMclik);
     g_eyePosZ = 8.0*(y-g_yMclik);
 

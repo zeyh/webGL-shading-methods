@@ -212,14 +212,14 @@ button:hover {
     right: 1%;
     cursor: pointer;
     opacity: 0.8;
-    margin-left:15px;
+    margin-left: 15px;
 }
-.switch:hover{
+.switch:hover {
     transition: 0.3s;
-    opacity:1;
+    opacity: 1;
 }
-.switchInfo{
-    float:left;
+.switchInfo {
+    float: left;
     margin-left: 190px;
     margin-top: 14px;
 }
@@ -237,7 +237,7 @@ button:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color:#67480b84;
+    background-color: #67480b84;
     opacity: 0.6;
     -webkit-transition: 0.4s;
     transition: 0.4s;
@@ -255,6 +255,7 @@ button:hover {
     transition: 0.4s;
 }
 
+/*switch*/
 input:checked + .sliderBox {
     background-color: #0d4a7d84;
     opacity: 0.6;
@@ -279,65 +280,78 @@ input:checked + .sliderBox:before {
 .sliderBox.round:before {
     border-radius: 50%;
 }
-.dynamicInstruction span{
+.dynamicInstruction span {
     font-weight: 700;
     text-decoration: underline;
     font-family: "Crimson Text", serif;
     font-size: 16pt;
 }
-.dynamicInstruction strong{
+.dynamicInstruction strong {
     font-weight: 300;
 }
 
-.smallSlider input{
+.smallSlider input {
     opacity: 0.8;
 }
-.smallSlider span{
-    font-size:12pt;
+.smallSlider span {
+    font-size: 12pt;
     font-weight: 300;
     text-decoration: none;
-    float:left;
+    float: left;
     margin-right: 5pt;
     display: inline-block;
 }
-.colorPicker{
+.colorPicker {
     border: none;
     width: 15pt;
     height: 15pt;
     opacity: 0.6;
     cursor: pointer;
     display: inline-block;
-    float:right;
-    margin-left:5pt;
+    float: right;
+    margin-left: 5pt;
 }
-.colorPicker:hover{
+.colorPicker:hover {
     opacity: 1;
     transition: 0.3s;
 }
-.minislider{
-    display: inline-block;
 
+.smallSlider input[type="range"]::-webkit-slider-thumb {
+    cursor: ew-resize;
 }
-#dynamicInstruction0{
-    transform: scale(0.8);
+
+.minislider {
+    display: inline-block;
+    /* background-color:#67480b84; */
+}
+#dynamicInstruction0 {
+    transform: scale(0.9);
     margin-top: -2%;
     margin-right: -5%;
 }
-.smallSlider{
+.smallSlider {
     /* width:30%; */
     float: right;
     text-align: left;
     vertical-align: right;
 }
-.primaryLightOptions{
+.primaryLightOptions {
     overflow: auto;
-    padding:10px;
+    padding: 10px 15px;
     border: 1px solid white;
 }
-#headlightp{
+#headlightp {
     margin-left: 180pt !important;
 }
-.miniSliderText{
+.miniSliderText {
     font-variant-numeric: tabular-nums lining-nums; /* todo: ideally should be monotinic font */
-    font-family: 'Roboto Mono', monospace;
+    font-family: "Roboto Mono", monospace;
 }
+.smallSlider em {
+    font-family: "Crimson Text", serif;
+    font-style: normal;
+    font-size: 14pt;
+}
+/* #note{
+    font-size: 12pt;
+} */

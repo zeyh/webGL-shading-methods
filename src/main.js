@@ -29,9 +29,9 @@ References: besides the inline links in index.html, the code is modified from
 ! Bug🐞: 0. [setting with clearDrag @ htmlCallBack.js] lighting change with object movement...😠 
 
 ! TODO: 2. usercontrol:
-            ❌world-space position, 
-            ✅switch light on/off,
-            ❌set separate R,G,B values for each of the ambient, diffuse, and specular light amount
+            ❌ world-space position, 
+            ✅ switch light on/off,
+            ✅ set separate R,G,B values for each of the ambient, diffuse, and specular light amount
 ! TODO: 4. Simple Texture Maps emmisive
 
 ! future work😐: user-selected distance dependencies??? does Foggy effect count for 1/3?
